@@ -25,9 +25,15 @@ export function createVercelHandler(factory = createApplication) {
           reject(error);
         }
       });
-    } catch {
+    } catch (error) {
+      const code = typeof error?.code === 'string' ? error.code : error?.name || 'INIT_ERROR';
+      const safeHint =
+        typeof error?.message === 'string' &&
+        !/postgres(ql)?:\/\/|password|secret/i.test(error.message)
+          ? error.message.slice(0, 140)
+          : '';
       console.error(
-        'RUANGKISAH API initialization failed. Check server environment and migration.',
+        'RUANGKISAH API initialization failed [' + code + ']' + (safeHint ? ': ' + safeHint : ''),
       );
       res.statusCode = 503;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
