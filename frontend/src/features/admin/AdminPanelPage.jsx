@@ -254,6 +254,7 @@ export function AdminPanelPage({ mode = 'admin' }) {
             {isSuperadminMode ? 'Panel Superadmin' : 'Panel Admin'}
           </span>
           <p className={styles.sidebarName}>{user?.displayName}</p>
+          {user?.email && <p className={styles.sidebarEmail}>{user.email}</p>}
         </div>
 
         <nav className={styles.navList}>
@@ -262,21 +263,22 @@ export function AdminPanelPage({ mode = 'admin' }) {
             className={`${styles.navButton} ${tab === 'overview' ? styles.navButtonActive : ''}`}
             onClick={() => setTab('overview')}
           >
-            Ringkasan
+            <span>Ringkasan</span>
           </button>
           <button
             type="button"
             className={`${styles.navButton} ${tab === 'students' ? styles.navButtonActive : ''}`}
             onClick={() => setTab('students')}
           >
-            Kelola Akun Siswa
+            <span>Kelola Akun Siswa</span>
           </button>
           <button
             type="button"
             className={`${styles.navButton} ${tab === 'approvals' ? styles.navButtonActive : ''}`}
             onClick={() => setTab('approvals')}
           >
-            Persetujuan Akun ({approvalQueue.length})
+            <span>Persetujuan Akun</span>
+            <span className={styles.navBadge}>{approvalQueue.length}</span>
           </button>
           {isSuperadminMode && (
             <>
@@ -285,21 +287,24 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 className={`${styles.navButton} ${tab === 'admins' ? styles.navButtonActive : ''}`}
                 onClick={() => setTab('admins')}
               >
-                Kelola Admin
+                <span>Kelola Admin</span>
               </button>
               <button
                 type="button"
                 className={`${styles.navButton} ${tab === 'audit' ? styles.navButtonActive : ''}`}
                 onClick={() => setTab('audit')}
               >
-                Riwayat Tindakan
+                <span>Riwayat Tindakan</span>
               </button>
             </>
           )}
+        </nav>
+
+        <div className={styles.sidebarFooter}>
           <button type="button" className={styles.logoutButton} onClick={handleLogout}>
             Keluar
           </button>
-        </nav>
+        </div>
       </aside>
 
       <div className={styles.content}>
@@ -368,11 +373,18 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 dinonaktifkan.
               </p>
             </header>
-            <div className={styles.rowActions}>
-              <Button variant="secondary" onClick={loadData} disabled={loading}>
+            <div className={styles.toolbarRow}>
+              <span className={styles.countBadge}>
+                {approvalQueue.length} akun menunggu persetujuan
+              </span>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                onClick={loadData}
+                disabled={loading}
+              >
                 Muat ulang permintaan
-              </Button>
-              <span>{approvalQueue.length} akun menunggu persetujuan</span>
+              </button>
             </div>
             <Field
               label="Cari permintaan akun"
@@ -393,11 +405,19 @@ export function AdminPanelPage({ mode = 'admin' }) {
                     className={styles.mobileCard}
                     aria-label={'Permintaan ' + account.email}
                   >
-                    <strong>{account.displayName}</strong>
-                    <span>{account.email}</span>
-                    <span>Daftar: {formatIndonesianDate(account.createdAt)}</span>
-                    <span className={`${styles.statusPill} ${getStatusPillClass(account.status)}`}>
-                      {ACCOUNT_STATUS_LABELS[account.status]}
+                    <div className={styles.cardTop}>
+                      <div className={styles.accountCell}>
+                        <strong className={styles.accountName}>{account.displayName}</strong>
+                        <span className={styles.accountEmail}>{account.email}</span>
+                      </div>
+                      <span
+                        className={`${styles.statusPill} ${getStatusPillClass(account.status)}`}
+                      >
+                        {ACCOUNT_STATUS_LABELS[account.status]}
+                      </span>
+                    </div>
+                    <span className={styles.cardMeta}>
+                      Daftar: {formatIndonesianDate(account.createdAt)}
                     </span>
                     <div className={styles.rowActions}>
                       <Button
@@ -423,24 +443,26 @@ export function AdminPanelPage({ mode = 'admin' }) {
               </div>
             )}
             <div className={styles.pagination}>
-              <span>
+              <span className={styles.paginationText}>
                 Halaman {currentApprovalPage} dari {approvalPages}
               </span>
               <div className={styles.rowActions}>
-                <Button
-                  variant="secondary"
+                <button
+                  type="button"
+                  className={styles.pageBtn}
                   disabled={currentApprovalPage <= 1}
                   onClick={() => setApprovalPage(currentApprovalPage - 1)}
                 >
                   Sebelumnya
-                </Button>
-                <Button
-                  variant="secondary"
+                </button>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
                   disabled={currentApprovalPage >= approvalPages}
                   onClick={() => setApprovalPage(currentApprovalPage + 1)}
                 >
                   Berikutnya
-                </Button>
+                </button>
               </div>
             </div>
           </section>
@@ -515,8 +537,7 @@ export function AdminPanelPage({ mode = 'admin' }) {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Nama tampilan</th>
-                    <th>Email</th>
+                    <th>Akun</th>
                     <th>Status</th>
                     <th>Tanggal daftar</th>
                     <th>Aksi</th>
@@ -525,23 +546,27 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 <tbody>
                   {pagedStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={5}>Tidak ada akun siswa yang sesuai filter.</td>
+                      <td colSpan={4}>Tidak ada akun siswa yang sesuai filter.</td>
                     </tr>
                   ) : (
                     pagedStudents.map((acc) => (
                       <tr key={acc.id}>
-                        <td>{acc.displayName}</td>
-                        <td>{acc.email}</td>
                         <td>
+                          <div className={styles.accountCell}>
+                            <span className={styles.accountName}>{acc.displayName}</span>
+                            <span className={styles.accountEmail}>{acc.email}</span>
+                          </div>
+                        </td>
+                        <td className={styles.nowrapCell}>
                           <span
                             className={`${styles.statusPill} ${getStatusPillClass(acc.status)}`}
                           >
                             {ACCOUNT_STATUS_LABELS[acc.status]}
                           </span>
                         </td>
-                        <td>{formatIndonesianDate(acc.createdAt)}</td>
+                        <td className={styles.nowrapCell}>{formatIndonesianDate(acc.createdAt)}</td>
                         <td>
-                          <div className={styles.rowActions}>
+                          <div className={styles.tableActions}>
                             <button
                               type="button"
                               className={styles.smallBtn}
@@ -591,10 +616,17 @@ export function AdminPanelPage({ mode = 'admin' }) {
               ) : (
                 pagedStudents.map((acc) => (
                   <article key={acc.id} className={styles.mobileCard}>
-                    <strong>{acc.displayName}</strong>
-                    <span>{acc.email}</span>
-                    <span>
-                      {ACCOUNT_STATUS_LABELS[acc.status]} · {formatIndonesianDate(acc.createdAt)}
+                    <div className={styles.cardTop}>
+                      <div className={styles.accountCell}>
+                        <strong className={styles.accountName}>{acc.displayName}</strong>
+                        <span className={styles.accountEmail}>{acc.email}</span>
+                      </div>
+                      <span className={`${styles.statusPill} ${getStatusPillClass(acc.status)}`}>
+                        {ACCOUNT_STATUS_LABELS[acc.status]}
+                      </span>
+                    </div>
+                    <span className={styles.cardMeta}>
+                      Daftar: {formatIndonesianDate(acc.createdAt)}
                     </span>
                     <div className={styles.rowActions}>
                       <button
@@ -626,24 +658,26 @@ export function AdminPanelPage({ mode = 'admin' }) {
             </div>
 
             <div className={styles.pagination}>
-              <span className={styles.lead}>
+              <span className={styles.paginationText}>
                 Halaman {currentPage} dari {totalPages} ({filteredStudents.length} akun)
               </span>
               <div className={styles.rowActions}>
-                <Button
-                  variant="secondary"
+                <button
+                  type="button"
+                  className={styles.pageBtn}
                   disabled={currentPage <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
                   Sebelumnya
-                </Button>
-                <Button
-                  variant="secondary"
+                </button>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
                   disabled={currentPage >= totalPages}
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 >
                   Berikutnya
-                </Button>
+                </button>
               </div>
             </div>
           </section>
@@ -665,8 +699,7 @@ export function AdminPanelPage({ mode = 'admin' }) {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Nama tampilan</th>
-                    <th>Email</th>
+                    <th>Akun</th>
                     <th>Peran</th>
                     <th>Status</th>
                     <th>Aksi</th>
@@ -675,16 +708,20 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 <tbody>
                   {managerAccounts.map((acc) => (
                     <tr key={acc.id}>
-                      <td>{acc.displayName}</td>
-                      <td>{acc.email}</td>
-                      <td>{ROLE_LABELS[acc.role]}</td>
                       <td>
+                        <div className={styles.accountCell}>
+                          <span className={styles.accountName}>{acc.displayName}</span>
+                          <span className={styles.accountEmail}>{acc.email}</span>
+                        </div>
+                      </td>
+                      <td className={styles.nowrapCell}>{ROLE_LABELS[acc.role]}</td>
+                      <td className={styles.nowrapCell}>
                         <span className={`${styles.statusPill} ${getStatusPillClass(acc.status)}`}>
                           {ACCOUNT_STATUS_LABELS[acc.status]}
                         </span>
                       </td>
                       <td>
-                        <div className={styles.rowActions}>
+                        <div className={styles.tableActions}>
                           <button
                             type="button"
                             className={styles.smallBtn}
