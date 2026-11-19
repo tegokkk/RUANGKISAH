@@ -1,3 +1,4 @@
+import { BrandLogoIcon } from '@/assets/icons/Icons';
 import { useOpenDemo } from '@/hooks/useOpenDemo';
 import { SlideTabs } from '@/components/ui/slide-tabs';
 import { useAppData } from '@/features/demo/AppDataContext';
@@ -12,7 +13,10 @@ export function Footer() {
       <div className={styles.inner}>
         <div className={styles.top}>
           <div className={styles.brandCol}>
-            <span className={styles.wordmark}>RUANGKISAH.ID · Selfcare-BK</span>
+            <div className={styles.brandRow}>
+              <BrandLogoIcon size={26} />
+              <span className={styles.wordmark}>RUANGKISAH.ID · Selfcare-BK</span>
+            </div>
             <p className={styles.purpose}>
               Media pendamping BK bagi siswa/siswi lintas sekolah untuk mengenali diri, memahami
               perasaan, dan mencoba langkah kecil sesuai kesiapan.

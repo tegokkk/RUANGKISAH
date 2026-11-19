@@ -40,10 +40,8 @@
 
 .brand {
   display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0;
+  align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
   text-decoration: none;
   color: var(--color-ink);
@@ -51,8 +49,21 @@
   padding: 0.25rem 0;
 }
 
+.brandLogo {
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
 .wordmark {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--color-ink);
@@ -60,7 +71,7 @@
 
 .program {
   white-space: nowrap;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-text-muted);
 }

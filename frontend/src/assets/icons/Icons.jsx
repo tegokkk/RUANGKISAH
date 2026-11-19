@@ -283,6 +283,32 @@ export function ChevronDownIcon({ size = 20, className = '' }) {
   );
 }
 
+export function BrandLogoIcon({ size = 28, className = '' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      aria-hidden="true"
+      className={className}
+    >
+      <rect width="32" height="32" rx="9" fill="#182420" />
+      <path
+        d="M10 22C10 15.9249 14.9249 11 21 11H22V14C22 18.4183 18.4183 22 14 22H10Z"
+        fill="#B9C255"
+      />
+      <path
+        d="M10 22C10 18.6863 12.6863 16 16 16H18"
+        stroke="#182420"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="12.5" cy="11.5" r="2" fill="#E6F1FA" />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon({ size = 16, className = '' }) {
   return (
     <svg

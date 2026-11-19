@@ -28,6 +28,12 @@
   gap: 0.5rem;
 }
 
+.brandRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .wordmark {
   font-size: 1.25rem;
   font-weight: 700;

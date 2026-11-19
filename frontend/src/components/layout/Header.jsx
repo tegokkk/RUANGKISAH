@@ -1,5 +1,5 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { MenuIcon } from '@/assets/icons/Icons';
+import { BrandLogoIcon, MenuIcon } from '@/assets/icons/Icons';
 import { ROLES } from '@/data/authStore';
 import { SlideTabs } from '@/components/ui/slide-tabs';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -39,8 +39,11 @@ export function Header({ onOpenMenu, menuButtonRef, menuOpen }) {
 
       <div className={styles.bar}>
         <Link to="/" className={styles.brand}>
-          <span className={styles.wordmark}>ruangkisah.</span>
-          <span className={styles.program}>Selfcare-BK</span>
+          <BrandLogoIcon size={28} className={styles.brandLogo} />
+          <span className={styles.brandText}>
+            <span className={styles.wordmark}>ruangkisah.</span>
+            <span className={styles.program}>Selfcare-BK</span>
+          </span>
         </Link>
 
         <nav className={styles.nav} aria-label="Navigasi utama">
