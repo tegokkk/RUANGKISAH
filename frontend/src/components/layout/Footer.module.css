@@ -29,15 +29,24 @@
 }
 
 .brandRow {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .wordmark {
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-ink);
+  min-width: 0;
+  word-break: break-word;
+}
+
+@media (max-width: 479px) {
+  .wordmark {
+    font-size: 1.0625rem;
+  }
 }
 
 .purpose {
