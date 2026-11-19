@@ -1,0 +1,39 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4000
+      PUBLIC_URL: https://${DOMAIN:?Set DOMAIN}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET}
+      DATABASE_PROVIDER: postgres
+      DATABASE_URL: ${DATABASE_URL:?Set runtime DATABASE_URL}
+      DATABASE_SSL: "true"
+      DATABASE_POOL_MAX: "1"
+      DATABASE_CA_CERT: ${DATABASE_CA_CERT:-}
+      MAIL_MODE: smtp
+      SMTP_URL: ${SMTP_URL:?Set SMTP_URL}
+      MAIL_FROM: ${MAIL_FROM:?Set MAIL_FROM}
+      SERVE_FRONTEND: "true"
+      TRUST_PROXY_HOPS: "1"
+    expose:
+      - "4000"
+  web:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docs/deployment/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN}
+    depends_on:
+      - app
+volumes:
+  caddy_data:
+  caddy_config:

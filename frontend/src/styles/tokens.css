@@ -1,0 +1,113 @@
+:root {
+  /* Warna inti dari design.md */
+  --color-canvas: #f7f8f2;
+  --color-surface: #ffffff;
+  --color-pistachio: #b9c255;
+  --color-frost: #e6f1fa;
+  --color-denim: #5798d7;
+  --color-ink: #182420;
+  --color-ink-soft: #27332f;
+  --color-text-muted: #52645c;
+  --color-action: #245f94;
+  --color-action-hover: #1b4c78;
+  --color-border-subtle: #dce4de;
+  --color-border-control: #718178;
+  --color-danger: #a93232;
+  --color-danger-surface: #fbedec;
+  --color-success: #285a42;
+  --color-success-surface: #eaf3eb;
+  --color-warning: #72581a;
+  --color-warning-surface: #fbf4dd;
+
+  /* Tipografi */
+  --font-sans: 'Manrope', Arial, sans-serif;
+
+  /* Jarak (4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80 px) */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
+  --space-16: 4rem; /* 64px */
+  --space-20: 5rem; /* 80px */
+
+  /* Radius */
+  --radius-hero: 2rem; /* 32px */
+  --radius-hero-mobile: 1.5rem; /* 24px */
+  --radius-card: 1.5rem; /* 24px */
+  --radius-card-mobile: 1.25rem; /* 20px */
+  --radius-field: 1rem; /* 16px */
+  --radius-pill: 9999px;
+
+  /* Kontainer */
+  --container-max: 1120px;
+  --writing-max: 720px;
+  --dialog-max: 480px;
+
+  /* Bayangan ringan & ring fokus */
+  --shadow-card: 0 2px 10px rgba(24, 36, 32, 0.04);
+  --shadow-card-hover: 0 6px 18px rgba(24, 36, 32, 0.07);
+  --shadow-dialog: 0 16px 40px rgba(24, 36, 32, 0.16);
+  --shadow-focus-ring: 0 0 0 3px rgba(36, 95, 148, 0.18);
+  --scrim-ink: rgba(24, 36, 32, 0.42);
+
+  /* Motion & transisi (150-300ms interaksi, <=400ms reveal) */
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-reveal: 360ms;
+  --transition-fast: var(--duration-fast) var(--motion-ease);
+  --transition-base: var(--duration-base) var(--motion-ease);
+
+  /* Sentuhan taman cahaya hangat (harmoni dengan EmberPetalPreloader) */
+  --garden-glow-surface:
+    radial-gradient(65% 85% at 96% 4%, rgba(255, 247, 220, 0.72) 0%, rgba(255, 255, 255, 0) 68%),
+    radial-gradient(50% 65% at 4% 96%, rgba(185, 194, 85, 0.14) 0%, rgba(255, 255, 255, 0) 70%);
+  --garden-glow-frost:
+    radial-gradient(68% 85% at 94% 8%, rgba(255, 247, 220, 0.65) 0%, rgba(230, 241, 250, 0) 70%),
+    radial-gradient(50% 60% at 8% 92%, rgba(87, 152, 215, 0.14) 0%, rgba(230, 241, 250, 0) 70%);
+  --garden-glow-pistachio: radial-gradient(
+    65% 85% at 92% 10%,
+    rgba(255, 247, 220, 0.52) 0%,
+    rgba(185, 194, 85, 0) 68%
+  );
+}
+
+:root {
+  --type-page-title: 2.25rem;
+  --type-form-title: 2rem;
+  --type-section-title: 1.5rem;
+  --type-body: 1rem;
+  --type-label: 0.9375rem;
+  --type-caption: 0.875rem;
+  --title-line-height: 1.18;
+  --title-weight: 600;
+  --layout-content: 840px;
+  --layout-auth: 520px;
+  --layout-overview: 960px;
+  --panel-padding: 2rem;
+  --panel-gap: 1.5rem;
+  --field-gap: 1rem;
+  --control-height: 56px;
+  --button-height: 48px;
+  --compact-height: 44px;
+  --textarea-height: 128px;
+  --nav-active-bg: var(--color-ink);
+  --nav-active-text: var(--color-surface);
+  --choice-selected-bg: var(--color-frost);
+  --choice-selected-border: var(--color-action);
+  --duration-overlay: 180ms;
+}
+@media (max-width: 767px) {
+  :root {
+    --type-page-title: 1.875rem;
+    --type-form-title: 1.75rem;
+    --type-section-title: 1.375rem;
+    --panel-padding: 1.5rem;
+    --textarea-height: 112px;
+  }
+}

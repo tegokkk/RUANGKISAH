@@ -1,0 +1,128 @@
+.page {
+  max-width: var(--layout-content);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.filters {
+  background-color: var(--color-surface);
+  background-image: var(--garden-glow-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card-mobile);
+  box-shadow: var(--shadow-card);
+  padding: 1.125rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  align-items: end;
+  gap: 1rem;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.filters select {
+  min-height: var(--control-height);
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-field);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  width: 100%;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.filters select:focus {
+  outline: 3px solid var(--color-action);
+  outline-offset: 2px;
+  border-color: var(--color-action);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--type-page-title);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+.lead {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.list {
+  animation: rk-enter var(--duration-base) var(--motion-ease);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.detailCard {
+  animation: rk-enter var(--duration-base) var(--motion-ease);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--panel-padding);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.dangerZone {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.chipsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: var(--type-page-title);
+  }
+
+  .detailCard {
+    padding: var(--panel-padding);
+    border-radius: var(--radius-card-mobile);
+  }
+}

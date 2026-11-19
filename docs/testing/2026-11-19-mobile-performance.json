@@ -1,0 +1,19 @@
+{
+  "profile": "Chromium Windows, viewport 390x844, CPU 4x, download 9 Mbps, upload 1.5 Mbps, latency 40 ms, cache disabled; lab only",
+  "runs": [
+    {
+      "lcp": 1828,
+      "cls": 0
+    },
+    {
+      "lcp": 1564,
+      "cls": 0.02221
+    },
+    {
+      "lcp": 1708,
+      "cls": 0
+    }
+  ],
+  "medianLcp": 1708,
+  "medianCls": 0
+}

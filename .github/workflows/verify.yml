@@ -1,0 +1,34 @@
+name: Verify application
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - run: npm --prefix backend ci
+      - run: npm --prefix frontend ci
+      - run: npm --prefix backend run lint
+      - run: npm --prefix backend test
+      - run: npm --prefix backend run format:check
+      - run: npm --prefix backend run test:postgres
+      - run: npm --prefix frontend run lint
+      - run: npm --prefix frontend run format:check
+      - run: npm --prefix frontend run test:run
+      - run: npm --prefix frontend run build
+      - run: npx playwright install --with-deps chromium firefox webkit
+        working-directory: frontend
+      - run: npm --prefix frontend run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: browser-failures
+          path: frontend/test-results

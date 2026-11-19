@@ -1,0 +1,100 @@
+.backdrop {
+  animation: rk-fade var(--duration-overlay) var(--motion-ease);
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background-color: var(--scrim-ink);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.panel {
+  animation: rk-drawer var(--duration-base) var(--motion-ease);
+  width: min(100%, 360px);
+  height: 100%;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow-y: auto;
+  box-shadow: var(--shadow-dialog);
+}
+
+.backdrop[data-state='closing'] {
+  animation: rk-fade var(--duration-overlay) var(--motion-ease) reverse both;
+  pointer-events: none;
+}
+.backdrop[data-state='closing'] .panel {
+  animation: rk-drawer var(--duration-overlay) var(--motion-ease) reverse both;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-control);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-field);
+  color: var(--color-ink);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+.linkActive {
+  background-color: var(--nav-active-bg);
+  color: var(--nav-active-text);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--color-border-subtle);
+  margin: 0.25rem 0;
+}
+
+.linkActive:hover {
+  background-color: var(--nav-active-bg);
+  color: var(--nav-active-text);
+}

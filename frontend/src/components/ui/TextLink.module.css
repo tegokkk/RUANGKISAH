@@ -1,0 +1,23 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-action);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+  padding: 0.25rem 0;
+}
+
+.link:hover {
+  color: var(--color-action-hover);
+}
+
+.onDark {
+  color: var(--color-surface);
+}
+
+.onDark:hover {
+  color: var(--color-pistachio);
+}

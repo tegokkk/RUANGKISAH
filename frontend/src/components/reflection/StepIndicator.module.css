@@ -1,0 +1,58 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-field);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.themeBadge {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  background-color: var(--color-pistachio);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--transition-fast);
+}
+
+.segments {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+.segment {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-border-subtle);
+  transition:
+    background-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.segmentActive {
+  background-color: var(--color-action);
+  transform: scaleY(1.18);
+}
+
+.segmentDone {
+  background-color: var(--color-pistachio);
+}

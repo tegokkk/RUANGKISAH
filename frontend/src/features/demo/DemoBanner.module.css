@@ -1,0 +1,46 @@
+.banner {
+  background-color: var(--color-pistachio);
+  color: var(--color-ink);
+  border-bottom: 1px solid rgba(24, 36, 32, 0.14);
+}
+
+.inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0.625rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.labelWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.exitButton {
+  min-height: 40px;
+  padding: 0.375rem 1rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-ink);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exitButton:hover {
+  background-color: var(--color-canvas);
+}
+
+@media (max-width: 767px) {
+  .inner {
+    padding: 0.625rem 1rem;
+  }
+}

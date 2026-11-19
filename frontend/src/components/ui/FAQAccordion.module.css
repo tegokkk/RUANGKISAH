@@ -1,0 +1,68 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-field);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-base);
+}
+
+.itemOpen {
+  border-color: var(--color-border-control);
+}
+
+.trigger {
+  width: 100%;
+  min-height: 56px;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.trigger:hover {
+  background-color: var(--color-canvas);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-action);
+  transition: transform var(--transition-base);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.panel {
+  animation: rk-enter var(--duration-base) var(--motion-ease);
+  padding: 0 1.25rem 1.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.panelClosing {
+  animation: rk-enter var(--duration-fast) var(--motion-ease) reverse both;
+}
+
+.panel p {
+  margin: 0;
+}

@@ -1,0 +1,63 @@
+.notice {
+  animation: rk-enter 180ms var(--motion-ease);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-field);
+  border: 1px solid var(--color-border-subtle);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.info {
+  background-color: var(--color-frost);
+  color: var(--color-ink);
+}
+
+.success {
+  background-color: var(--color-success-surface);
+  color: var(--color-success);
+  border-color: rgba(40, 90, 66, 0.25);
+}
+
+.warning {
+  background-color: var(--color-warning-surface);
+  color: var(--color-warning);
+  border-color: rgba(114, 88, 26, 0.25);
+}
+
+.danger {
+  background-color: var(--color-danger-surface);
+  color: var(--color-danger);
+  border-color: rgba(169, 50, 50, 0.25);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.body {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}

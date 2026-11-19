@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-frost);
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.saved {
+  background-color: var(--color-success-surface);
+  color: var(--color-success);
+}
+
+.dirty {
+  background-color: var(--color-warning-surface);
+  color: var(--color-warning);
+}
+
+.link {
+  color: var(--color-action);
+  font-weight: 600;
+  text-decoration: underline;
+  font-size: 0.875rem;
+}
