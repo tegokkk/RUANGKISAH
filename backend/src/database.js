@@ -20,7 +20,10 @@ export async function openDatabase(config) {
       query_timeout: 15000,
       maxLifetimeSeconds: 60,
       ssl: config.databaseSsl
-        ? { rejectUnauthorized: true, ...(config.databaseCa ? { ca: config.databaseCa } : {}) }
+        ? {
+            rejectUnauthorized: true,
+            ...(config.databaseCa ? { ca: config.databaseCa.replace(/\\n/g, '\n') } : {}),
+          }
         : false,
     });
     // Never log the Error object: connection errors can contain credentials.
