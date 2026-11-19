@@ -2,8 +2,22 @@ import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 import { attachDatabasePool } from '@vercel/functions';
 import { resolve } from 'node:path';
+import { SUPABASE_ROOT_CA_2021 } from './supabase-ca.js';
 
 export const DATABASE_SCHEMA = 'ruangkisah';
+
+function normalizePemCert(raw) {
+  if (!raw || typeof raw !== 'string') return null;
+  const cleaned = raw
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .replace(/\\n/g, '\n');
+  const match = cleaned.match(/-----BEGIN CERTIFICATE-----([\s\S]+?)-----END CERTIFICATE-----/);
+  if (!match) return cleaned;
+  const body = match[1].replace(/\s+/g, '');
+  const lines = body.match(/.{1,64}/g) || [];
+  return '-----BEGIN CERTIFICATE-----\n' + lines.join('\n') + '\n-----END CERTIFICATE-----';
+}
 
 export async function openDatabase(config) {
   let dialect;
@@ -12,6 +26,12 @@ export async function openDatabase(config) {
     const url = new URL(config.databaseUrl);
     for (const key of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert', 'ssl'])
       url.searchParams.delete(key);
+    const customCa = normalizePemCert(config.databaseCa);
+    const isSupabase = /(?:^|\.)supabase\.(?:co|com)$/i.test(url.hostname);
+    const caList = [
+      ...(customCa ? [customCa] : []),
+      ...(isSupabase ? [SUPABASE_ROOT_CA_2021] : []),
+    ];
     const pool = new Pool({
       connectionString: url.toString(),
       max: config.databasePoolMax,
@@ -22,7 +42,7 @@ export async function openDatabase(config) {
       ssl: config.databaseSsl
         ? {
             rejectUnauthorized: true,
-            ...(config.databaseCa ? { ca: config.databaseCa.replace(/\\n/g, '\n') } : {}),
+            ...(caList.length ? { ca: caList } : {}),
           }
         : false,
     });
