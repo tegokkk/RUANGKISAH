@@ -117,17 +117,8 @@ export function AdminPanelPage({ mode = 'admin' }) {
         Setujui akun
       </button>
     ) : (
-      <button
-        type="button"
-        className={styles.smallBtn}
-        disabled={account.status === ACCOUNT_STATUSES.PENDING_VERIFICATION}
-        onClick={() => setStatusTarget(account)}
-      >
-        {account.status === ACCOUNT_STATUSES.PENDING_VERIFICATION
-          ? 'Menunggu verifikasi email'
-          : account.status === ACCOUNT_STATUSES.ACTIVE
-            ? 'Nonaktifkan'
-            : 'Aktifkan'}
+      <button type="button" className={styles.smallBtn} onClick={() => setStatusTarget(account)}>
+        {account.status === ACCOUNT_STATUSES.ACTIVE ? 'Nonaktifkan' : 'Aktifkan'}
       </button>
     );
 
@@ -353,8 +344,8 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 Persetujuan Akun
               </h1>
               <p className={styles.lead}>
-                Tinjau pendaftaran siswa. Persetujuan hanya dapat diberikan setelah email
-                terverifikasi dan akun tidak dinonaktifkan.
+                Tinjau pendaftaran siswa. Persetujuan dapat diberikan pada akun aktif yang belum
+                dinonaktifkan.
               </p>
             </header>
             <div className={styles.rowActions}>
@@ -388,15 +379,10 @@ export function AdminPanelPage({ mode = 'admin' }) {
                     <span className={`${styles.statusPill} ${getStatusPillClass(account.status)}`}>
                       {ACCOUNT_STATUS_LABELS[account.status]}
                     </span>
-                    <span>
-                      Email: {account.emailVerified ? 'Terverifikasi' : 'Belum terverifikasi'}
-                    </span>
                     <div className={styles.rowActions}>
                       <Button
                         onClick={() => setApprovalTarget(account)}
-                        disabled={
-                          !account.emailVerified || account.status === ACCOUNT_STATUSES.DISABLED
-                        }
+                        disabled={account.status === ACCOUNT_STATUSES.DISABLED}
                       >
                         Setujui akun
                       </Button>
@@ -407,11 +393,6 @@ export function AdminPanelPage({ mode = 'admin' }) {
                         Hapus akun
                       </Button>
                     </div>
-                    {!account.emailVerified && (
-                      <p className={styles.statusHint}>
-                        Pengguna perlu membuka tautan verifikasi email terlebih dahulu.
-                      </p>
-                    )}
                     {account.status === ACCOUNT_STATUSES.DISABLED && (
                       <p className={styles.statusHint}>
                         Aktifkan kembali akun melalui Kelola Akun Siswa sebelum menyetujui.
@@ -484,9 +465,6 @@ export function AdminPanelPage({ mode = 'admin' }) {
                   <option value="all">Semua status</option>
                   <option value={ACCOUNT_STATUSES.ACTIVE}>Aktif</option>
                   <option value={ACCOUNT_STATUSES.DISABLED}>Dinonaktifkan</option>
-                  <option value={ACCOUNT_STATUSES.PENDING_VERIFICATION}>
-                    Menunggu verifikasi email
-                  </option>
                   <option value={ACCOUNT_STATUSES.PENDING_APPROVAL}>
                     Menunggu persetujuan Admin
                   </option>

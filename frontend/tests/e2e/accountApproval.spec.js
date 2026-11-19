@@ -1,5 +1,4 @@
 import { test, expect } from './fixtures.js';
-import { readTestMail } from './mailHelpers.js';
 import AxeBuilder from '@axe-core/playwright';
 
 test.use({ authenticated: false });
@@ -19,7 +18,15 @@ for (const [width, managerEmail, managerRoute] of [
       await page.getByLabel(/^Konfirmasi kata sandi/i).fill(password);
       await page.getByRole('checkbox').check();
       await page.getByRole('button', { name: 'Buat akun', exact: true }).click();
-      await expect(page.getByText(/tunggu persetujuan Admin/i)).toBeVisible();
+      await expect(page.getByText(/Tunggu persetujuan Admin/i)).toBeVisible();
+      await page.goto('/masuk');
+      await page.getByLabel(/^Email/i).fill(email);
+      await page.getByLabel(/^Kata sandi/i).fill(password);
+      await page.getByRole('button', { name: 'Masuk', exact: true }).click();
+      await expect(page.getByText(/Akunmu menunggu persetujuan Admin/)).toBeVisible();
+      expect((await page.context().request.get('/api/me')).status()).toBe(401);
+      await page.goto('/jurnal-perasaan');
+      await expect(page).toHaveURL(/\/masuk$/);
       const manager = await browser.newContext({
         viewport: { width, height: 900 },
         reducedMotion: 'reduce',
@@ -35,18 +42,6 @@ for (const [width, managerEmail, managerRoute] of [
         await panel.getByRole('button', { name: /^Persetujuan Akun/ }).click();
         await panel.getByLabel('Cari permintaan akun').fill(email);
         const request = panel.getByRole('article', { name: 'Permintaan ' + email });
-        await expect(
-          request.getByRole('button', { name: 'Setujui akun', exact: true })
-        ).toBeDisabled();
-        await page.goto((await readTestMail(email, 'verification')).url);
-        await page.getByLabel(/^Email/i).fill(email);
-        await page.getByLabel(/^Kata sandi/i).fill(password);
-        await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-        await expect(page.getByText(/Akunmu menunggu persetujuan Admin/)).toBeVisible();
-        expect((await page.context().request.get('/api/me')).status()).toBe(401);
-        await page.goto('/jurnal-perasaan');
-        await expect(page).toHaveURL(/\/masuk$/);
-        await panel.getByRole('button', { name: 'Muat ulang permintaan' }).click();
         await expect(
           request.getByRole('button', { name: 'Setujui akun', exact: true })
         ).toBeEnabled();

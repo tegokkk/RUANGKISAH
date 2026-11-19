@@ -4,13 +4,13 @@ Panduan untuk kode versi 1.4. Tidak ada deployment, pembelian layanan, atau peru
 
 Proyek Supabase yang diberikan: https://veinqenogcvmxdbefhzm.supabase.co — ref veinqenogcvmxdbefhzm. URL ini adalah URL API proyek, **bukan DATABASE_URL PostgreSQL**. Koneksi MCP saat pengerjaan tidak memiliki izin ke proyek ini; migrasi cloud belum dijalankan.
 
-## 1. Ambil koneksi database dan siapkan email
+## 1. Ambil koneksi database
 
 1. Buka proyek Supabase tersebut dan pilih **Connect**.
 2. Salin connection string **Session pooler** untuk migrasi/administrasi lokal. Direct connection juga dapat dipakai jika jaringan mendukung koneksi yang diberikan Dashboard.
 3. Salin connection string **Transaction pooler** untuk runtime Vercel. Gunakan host, port dan ref persis dari Connect; jangan menebak region. Simpan credential secara privat.
 4. Unduh root CA database bila diperlukan dari pengaturan SSL Supabase. Kode memverifikasi sertifikat; jangan mematikan TLS untuk mengatasi error certificate.
-5. Siapkan SMTP dari penyedia email Anda dan alamat pengirim yang sudah disetujui. Aplikasi tetap memakai **Better Auth**, sehingga SMTP diatur lewat environment aplikasi, bukan menu Supabase Auth. Akun aplikasi nantinya berada pada schema ruangkisah, bukan auth.users.
+5. Aplikasi memakai **Better Auth** dengan schema privat `ruangkisah` (bukan `auth.users`) serta persetujuan Admin langsung tanpa memerlukan konfigurasi SMTP.
 
 ## 2. Isi konfigurasi privat lokal
 
@@ -35,9 +35,6 @@ Jika backend/.env sudah ada, pertahankan salinan privatnya sebelum mengedit. Fil
 | DATABASE_CA_CERT       | Isi PEM root CA dari Supabase jika rantai sertifikat memerlukannya                           |
 | AUTH_SECRET            | Secret acak unik minimal 32 karakter; pertahankan stabil antar-deployment                    |
 | PUBLIC_URL             | Origin HTTPS situs final, misalnya https://NAMA-PROYEK.vercel.app; tanpa slash/path tambahan |
-| MAIL_MODE              | smtp                                                                                         |
-| SMTP_URL               | URI SMTP privat milik penyedia Anda                                                          |
-| MAIL_FROM              | Alamat pengirim yang disetujui penyedia                                                      |
 | SERVE_FRONTEND         | false                                                                                        |
 | TRUST_PROXY_HOPS       | 1                                                                                            |
 
@@ -124,9 +121,6 @@ Masukkan melalui **Project Settings → Environment Variables**, tanpa prefix VI
 - DATABASE_CA_CERT=PEM Supabase bila dibutuhkan
 - AUTH_SECRET=secret stabil yang sama dengan konfigurasi aplikasi
 - PUBLIC_URL=origin HTTPS final
-- MAIL_MODE=smtp
-- SMTP_URL=credential SMTP
-- MAIL_FROM=pengirim yang disetujui
 - SERVE_FRONTEND=false
 - TRUST_PROXY_HOPS=1
 

@@ -3,13 +3,11 @@ export const ROLE_LABELS = { siswa: 'Siswa', admin: 'Admin', superadmin: 'Supera
 export const ACCOUNT_STATUSES = {
   ACTIVE: 'active',
   DISABLED: 'disabled',
-  PENDING_VERIFICATION: 'pending_verification',
   PENDING_APPROVAL: 'pending_approval',
 };
 export const ACCOUNT_STATUS_LABELS = {
   active: 'Aktif',
   disabled: 'Dinonaktifkan',
-  pending_verification: 'Menunggu verifikasi email',
   pending_approval: 'Menunggu persetujuan Admin',
 };
 const ERROR_MESSAGES = {
@@ -17,11 +15,10 @@ const ERROR_MESSAGES = {
     'Akunmu menunggu persetujuan Admin. Kamu dapat masuk setelah akun disetujui.',
   ACCOUNT_DISABLED: 'Akun ini dinonaktifkan.',
   INVALID_EMAIL_OR_PASSWORD: 'Email atau kata sandi tidak sesuai.',
-  EMAIL_NOT_VERIFIED: 'Email belum terverifikasi. Periksa instruksi verifikasi di emailmu.',
-  USER_ALREADY_EXISTS: 'Pendaftaran belum dapat diselesaikan. Coba masuk atau pulihkan akun.',
+  USER_ALREADY_EXISTS: 'Pendaftaran belum dapat diselesaikan. Coba masuk dengan akun yang ada.',
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL:
-    'Pendaftaran belum dapat diselesaikan. Coba masuk atau pulihkan akun.',
-  INVALID_TOKEN: 'Tautan tidak berlaku atau sudah kedaluwarsa. Minta tautan baru.',
+    'Pendaftaran belum dapat diselesaikan. Coba masuk dengan akun yang ada.',
+  INVALID_TOKEN: 'Tautan tidak berlaku atau sudah kedaluwarsa.',
   PASSWORD_TOO_SHORT: 'Kata sandi minimal 10 karakter.',
   PASSWORD_TOO_LONG: 'Kata sandi maksimal 128 karakter.',
   TOO_MANY_REQUESTS: 'Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.',
@@ -63,11 +60,9 @@ function normalizeUser(user) {
     status:
       user.status === 'disabled'
         ? 'disabled'
-        : !user.emailVerified
-          ? 'pending_verification'
-          : user.approvalStatus !== 'approved'
-            ? 'pending_approval'
-            : 'active',
+        : user.approvalStatus !== 'approved'
+          ? 'pending_approval'
+          : 'active',
   };
 }
 function callback(path) {
@@ -105,7 +100,6 @@ export const authStore = {
         email: email.trim().toLowerCase(),
         password,
         termsAccepted: Boolean(agreed),
-        callbackURL: callback('/masuk?verified=1'),
       },
     });
   },

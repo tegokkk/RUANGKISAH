@@ -84,12 +84,6 @@ export function LoginPage() {
             {authError}
           </Notice>
         )}
-        {new URLSearchParams(location.search).get('verified') === '1' && (
-          <Notice variant="info">
-            Setelah email terverifikasi, akun tetap memerlukan persetujuan Admin sebelum dapat
-            digunakan. Server akan memeriksa keduanya saat kamu masuk.
-          </Notice>
-        )}
 
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <Field

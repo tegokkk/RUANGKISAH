@@ -1,5 +1,4 @@
 import { expect, test } from './fixtures.js';
-import { readTestMail } from './mailHelpers.js';
 
 const ROUTES = [
   '/',
@@ -260,7 +259,7 @@ test('AT-15 (konflik edit) & AT-18 (back/forward setelah hapus): mendeteksi konf
   await expect(page1.getByText(/Belum ada catatan tersimpan di browser ini/i)).toBeVisible();
 });
 
-test('Alur lengkap Pendaftaran Siswa, Verifikasi, Persetujuan, Login, Role Guard, dan Panel Superadmin', async ({
+test('Alur lengkap Pendaftaran Siswa, Persetujuan, Login, Role Guard, dan Panel Superadmin', async ({
   page,
   request,
 }) => {
@@ -272,10 +271,7 @@ test('Alur lengkap Pendaftaran Siswa, Verifikasi, Persetujuan, Login, Role Guard
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: /Buat akun/i }).click();
 
-  await expect(page.getByRole('heading', { name: /Verifikasi emailmu/i })).toBeVisible();
-  const verification = await readTestMail('e2e-siswa@contoh.id', 'verification');
-  await page.goto(verification.url);
-  await expect(page.getByRole('heading', { name: /Selamat datang kembali/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Pendaftaran diterima/i })).toBeVisible();
 
   await request.post('/api/auth/sign-in/email', {
     headers: { Origin: 'http://127.0.0.1:4001' },
@@ -370,9 +366,9 @@ test('UI/UX motion, FAQ accordion, dialog exit, dan prefers-reduced-motion beker
   await expect(faqBtn).toHaveAttribute('aria-expanded', 'false');
   await faqBtn.click();
   await expect(faqBtn).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByText(/Buat akun, verifikasi email/i)).toBeVisible();
+  await expect(page.getByText(/Buat akun, tunggu persetujuan Admin/i)).toBeVisible();
 
   await faqBtn.click();
   await expect(faqBtn).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByText(/Buat akun, verifikasi email/i)).toBeHidden();
+  await expect(page.getByText(/Buat akun, tunggu persetujuan Admin/i)).toBeHidden();
 });

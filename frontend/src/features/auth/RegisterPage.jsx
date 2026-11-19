@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Notice } from '@/components/ui/Notice';
 import { TextLink } from '@/components/ui/TextLink';
-import { apiRequest, authStore } from '@/data/authStore';
+import { authStore } from '@/data/authStore';
 import { PasswordField } from '@/features/auth/components/PasswordField';
 import styles from './AuthPages.module.css';
 
 export function RegisterPage() {
-  const [phase, setPhase] = useState('form'); // 'form' | 'verify' | 'success'
+  const [phase, setPhase] = useState('form'); // 'form' | 'success'
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,10 +19,6 @@ export function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
   const [pending, setPending] = useState(false);
-  const [localMail, setLocalMail] = useState(false);
-  useEffect(() => {
-    apiRequest('/api/config').then((result) => setLocalMail(result.mailMode === 'file'));
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +64,7 @@ export function RegisterPage() {
 
     setPassword('');
     setConfirmPassword('');
-    setPhase('verify');
+    setPhase('success');
   };
 
   return (
@@ -84,8 +80,8 @@ export function RegisterPage() {
             <p className={styles.lead}>
               Pendaftaran ini membuat akun <strong>Siswa</strong> tanpa meminta NISN, alamat, atau
               nomor telepon. Terbuka untuk siswa/siswi lintas sekolah. Pengelola platform tidak
-              memiliki akses ke isi jurnal pribadimu. Email perlu diverifikasi dan akun perlu
-              disetujui Admin sebelum dapat digunakan.
+              memiliki akses ke isi jurnal pribadimu. Akun perlu disetujui Admin sebelum dapat
+              digunakan.
             </p>
 
             {submitError && <Notice variant="danger">{submitError}</Notice>}
@@ -185,40 +181,21 @@ export function RegisterPage() {
           </>
         )}
 
-        {phase === 'verify' && (
-          <>
-            <h1 id="register-title" className={styles.title}>
-              Verifikasi emailmu.
-            </h1>
-            <p className={styles.lead}>
-              Periksa instruksi verifikasi untuk <strong>{email}</strong>, termasuk folder spam.
-              Setelah memverifikasi email melalui tautan tersebut, tunggu persetujuan Admin. Akun
-              hanya dapat digunakan setelah email terverifikasi dan pendaftaran disetujui.
-            </p>
-            {submitError && <Notice variant="danger">{submitError}</Notice>}
-            {localMail && (
-              <Notice variant="warning">
-                Mode pengembangan: email belum dikirim ke alamat nyata. Pengelola dapat memeriksa
-                kotak pesan lokal server.
-              </Notice>
-            )}
-            <Button to="/masuk" variant="primary" fullWidth>
-              Kembali ke Masuk
-            </Button>
-          </>
-        )}
-
         {phase === 'success' && (
           <>
             <h1 id="register-title" className={styles.title}>
-              Akun berhasil dibuat.
+              Pendaftaran diterima.
             </h1>
-            <Notice variant="success">
-              Email yang sudah terverifikasi tetap memerlukan persetujuan Admin sebelum akun Siswa
-              dapat digunakan.
+            <p className={styles.lead}>
+              Akun untuk <strong>{email}</strong> telah tercatat. Tunggu persetujuan Admin sebelum
+              akun dapat digunakan untuk masuk.
+            </p>
+            <Notice variant="info">
+              Setelah Admin menyetujui pendaftaranmu, kamu bisa langsung masuk menggunakan email dan
+              kata sandi yang baru dibuat.
             </Notice>
             <Button to="/masuk" variant="primary" fullWidth>
-              Masuk ke akun
+              Kembali ke Masuk
             </Button>
           </>
         )}

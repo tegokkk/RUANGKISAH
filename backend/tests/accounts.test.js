@@ -1,6 +1,6 @@
 import { after, before, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, resolve } from 'node:path';
 import { createApplication } from '../src/app.js';
@@ -20,7 +20,6 @@ before(async () => {
     dataDir: dir,
     test: true,
     publicUrl: origin,
-    mailMode: 'file',
   });
   server = service.app.listen(0, '127.0.0.1');
   await new Promise((done) => server.once('listening', done));
@@ -31,7 +30,6 @@ before(async () => {
     .set({
       role: 'superadmin',
       approvalStatus: 'approved',
-      emailVerified: service.database.boolean(true),
     })
     .where('id', '=', owner.data.user.id)
     .execute();
@@ -69,13 +67,6 @@ async function call(path, { method = 'GET', body, cookie, requestOrigin = origin
       .join('; '),
   };
 }
-function lastMail(email, kind) {
-  return readdirSync(resolve(dir, 'mail'))
-    .map((name) => JSON.parse(readFileSync(resolve(dir, 'mail', name), 'utf8')))
-    .filter((mail) => mail.to === email && mail.kind === kind)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    .at(-1);
-}
 async function register(email, extra = {}) {
   return call('/api/auth/sign-up/email', {
     method: 'POST',
@@ -84,14 +75,9 @@ async function register(email, extra = {}) {
       email,
       password,
       termsAccepted: true,
-      callbackURL: origin + '/masuk?verified=1',
       ...extra,
     },
   });
-}
-async function verify(email) {
-  const link = new URL(lastMail(email, 'verification').url);
-  return call(link.pathname + link.search);
 }
 async function login(email, pass = password) {
   return call('/api/auth/sign-in/email', {
@@ -100,7 +86,7 @@ async function login(email, pass = password) {
   });
 }
 
-test('registrasi publik selalu siswa, tidak membocorkan hash, menolak consent palsu dan login sebelum verifikasi', async () => {
+test('registrasi publik selalu siswa, tidak membocorkan hash, menolak consent palsu dan login sebelum disetujui Admin', async () => {
   const denied = await register('consent@example.test', {
     termsAccepted: false,
   });
@@ -121,8 +107,6 @@ test('registrasi publik selalu siswa, tidak membocorkan hash, menolak consent pa
     .executeTakeFirst();
   assert.ok(stored.password.length > 50);
   assert.notEqual(stored.password, password);
-  assert.equal((await login('student@example.test')).response.status, 403);
-  assert.equal((await verify('student@example.test')).response.status, 302);
   const waiting = await login('student@example.test');
   assert.equal(waiting.response.status, 403);
   assert.equal(waiting.data.code, 'ACCOUNT_PENDING_APPROVAL');
@@ -165,7 +149,6 @@ test('sesi cookie HttpOnly, logout, origin asing dan penolakan akses pengelola d
 
 test('superadmin menetapkan admin; admin dibatasi siswa; nonaktif/hapus mencabut sesi; Superadmin dilindungi', async () => {
   const owner = await register('owner@example.test');
-  await verify('owner@example.test');
   await service.db
     .updateTable('user')
     .set({ role: 'superadmin', approvalStatus: 'approved' })
@@ -173,7 +156,6 @@ test('superadmin menetapkan admin; admin dibatasi siswa; nonaktif/hapus mencabut
     .execute();
   const superSession = await login('owner@example.test');
   const manager = await register('manager@example.test');
-  await verify('manager@example.test');
   await call('/api/admin/accounts/' + manager.data.user.id + '/approval', {
     method: 'PATCH',
     cookie: superSession.cookie,
@@ -255,56 +237,7 @@ test('superadmin menetapkan admin; admin dibatasi siswa; nonaktif/hapus mencabut
   assert.ok(logs.data.logs.every((log) => !('password' in log) && !('journal' in log)));
 });
 
-test('reset netral, token sekali pakai, kata sandi baru bekerja dan sesi lama dicabut', async () => {
-  const resetAccount = await register('reset@example.test');
-  await verify('reset@example.test');
-  await call('/api/admin/accounts/' + resetAccount.data.user.id + '/approval', {
-    method: 'PATCH',
-    cookie: approvalOwner,
-    body: { approvalStatus: 'approved' },
-  });
-  const session = await login('reset@example.test');
-  const known = await call('/api/auth/request-password-reset', {
-    method: 'POST',
-    body: {
-      email: 'reset@example.test',
-      redirectTo: origin + '/reset-kata-sandi',
-    },
-  });
-  const unknown = await call('/api/auth/request-password-reset', {
-    method: 'POST',
-    body: {
-      email: 'unknown@example.test',
-      redirectTo: origin + '/reset-kata-sandi',
-    },
-  });
-  assert.deepEqual(known.data, unknown.data);
-  assert.equal(known.data.token, undefined);
-  const mail = lastMail('reset@example.test', 'reset');
-  const link = new URL(mail.url);
-  const redirect = await call(link.pathname + link.search);
-  const token = new URL(redirect.response.headers.get('location')).searchParams.get('token');
-  const replacement = 'Replacement-Strong-Password-490!';
-  const changed = await call('/api/auth/reset-password', {
-    method: 'POST',
-    body: { token, newPassword: replacement },
-  });
-  assert.equal(changed.response.status, 200);
-  assert.equal((await call('/api/me', { cookie: session.cookie })).response.status, 401);
-  assert.equal((await login('reset@example.test')).response.status, 401);
-  assert.equal((await login('reset@example.test', replacement)).response.status, 200);
-  assert.equal(
-    (
-      await call('/api/auth/reset-password', {
-        method: 'POST',
-        body: { token, newPassword: password },
-      })
-    ).response.status,
-    400,
-  );
-});
-
-test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role dan reset tidak melewati persetujuan; approve hanya oleh pengelola dan tercatat sekali', async () => {
+test('persetujuan wajib di server: aktivasi dan perubahan profil/role tidak melewati persetujuan; approve hanya oleh pengelola dan tercatat sekali', async () => {
   const registered = await register('pending@example.test', { approvalStatus: 'approved' });
   const id = registered.data.user.id;
   const approve = (cookie = approvalOwner) =>
@@ -313,7 +246,6 @@ test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role d
       cookie,
       body: { approvalStatus: 'approved' },
     });
-  assert.equal((await approve()).response.status, 409); // cannot verify email for the student
   assert.equal(
     (
       await call('/api/admin/accounts/' + id + '/approval', {
@@ -323,7 +255,6 @@ test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role d
     ).response.status,
     401,
   );
-  await verify('pending@example.test');
   assert.equal((await login('pending@example.test', 'Wrong-Password-123!')).response.status, 401);
   assert.equal((await login('pending@example.test')).data.code, 'ACCOUNT_PENDING_APPROVAL');
   const ownerList = await call('/api/admin/accounts', { cookie: approvalOwner });
@@ -347,25 +278,7 @@ test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role d
     ).response.status,
     409,
   );
-  await call('/api/auth/request-password-reset', {
-    method: 'POST',
-    body: { email: 'pending@example.test', redirectTo: origin + '/reset-kata-sandi' },
-  });
-  const resetLink = new URL(lastMail('pending@example.test', 'reset').url);
-  const redirected = await call(resetLink.pathname + resetLink.search);
-  const token = new URL(redirected.response.headers.get('location')).searchParams.get('token');
-  const newPassword = 'Pending-Replacement-Password-123!';
-  assert.equal(
-    (await call('/api/auth/reset-password', { method: 'POST', body: { token, newPassword } }))
-      .response.status,
-    200,
-  );
-  assert.equal(
-    (await login('pending@example.test', newPassword)).data.code,
-    'ACCOUNT_PENDING_APPROVAL',
-  );
   const student = await register('approval-student@example.test');
-  await verify('approval-student@example.test');
   await call('/api/admin/accounts/' + student.data.user.id + '/approval', {
     method: 'PATCH',
     cookie: approvalOwner,
@@ -380,7 +293,6 @@ test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role d
   });
   assert.equal((await call('/api/me', { cookie: studentSession.cookie })).data.user.role, 'siswa');
   const manager = await register('approval-admin@example.test');
-  await verify('approval-admin@example.test');
   await call('/api/admin/accounts/' + manager.data.user.id + '/approval', {
     method: 'PATCH',
     cookie: approvalOwner,
@@ -394,7 +306,7 @@ test('persetujuan wajib di server: email saja, aktivasi, perubahan profil/role d
   const adminSession = await login('approval-admin@example.test');
   const attempts = await Promise.all([approve(adminSession.cookie), approve(adminSession.cookie)]);
   assert.deepEqual(attempts.map((attempt) => attempt.response.status).sort(), [200, 409]);
-  assert.equal((await login('pending@example.test', newPassword)).response.status, 200);
+  assert.equal((await login('pending@example.test')).response.status, 200);
   const logs = await call('/api/admin/audit', { cookie: approvalOwner });
   assert.equal(
     logs.data.logs.filter(

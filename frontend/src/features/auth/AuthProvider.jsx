@@ -105,9 +105,7 @@ export function AuthProvider({ children }) {
   );
 
   const approvedUser =
-    user?.approvalStatus === 'approved' && user.emailVerified && user.status === 'active'
-      ? user
-      : null;
+    user?.approvalStatus === 'approved' && user.status === 'active' ? user : null;
   const value = useMemo(
     () => ({
       user: approvedUser,

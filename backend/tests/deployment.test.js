@@ -15,7 +15,7 @@ import { consumeRateLimit } from '../src/rate-limit.js';
 import { createVercelHandler } from '../src/vercel.js';
 import { startTestPostgres } from './helpers/postgres.js';
 
-test('konfigurasi produksi menolak SQLite, secret hilang, SMTP file, TLS remote nonaktif dan migrasi saat request', () => {
+test('konfigurasi produksi menolak SQLite, secret hilang, TLS remote nonaktif dan migrasi saat request', () => {
   const valid = {
     production: true,
     vercel: false,
@@ -25,15 +25,11 @@ test('konfigurasi produksi menolak SQLite, secret hilang, SMTP file, TLS remote 
     autoMigrate: false,
     secret: 'test-only-configuration-secret-123456789',
     publicUrl: 'https://example.test',
-    mailMode: 'smtp',
-    smtpUrl: 'smtps://mail.example.test',
-    mailFrom: 'noreply@example.test',
   };
   assert.equal(loadConfig(valid).databasePoolMax, 1);
   for (const invalid of [
     { databaseProvider: 'sqlite' },
     { secret: '' },
-    { mailMode: 'file' },
     { databaseSsl: false },
     { autoMigrate: true },
     { publicUrl: 'http://example.test' },
@@ -97,15 +93,8 @@ test(
       autoMigrate: true,
       test: true,
       secret: 'postgres-test-secret-only-1234567890',
-      mailMode: 'file',
     };
-    // mail outbox and data directory are isolated from normal development.
-    const service = await createApplication({
-      ...config,
-      mailMode: 'smtp',
-      smtpUrl: 'smtp://localhost:1',
-      mailFrom: 'test@example.test',
-    });
+    const service = await createApplication(config);
     let other, runtime;
     try {
       await migrateDatabase(service.database, service.auth, service.config);
@@ -143,7 +132,6 @@ test(
           databaseUrl: undefined,
           autoMigrate: true,
           test: true,
-          mailMode: 'file',
           secret: config.secret,
         });
         const password = 'Import-Test-Only-Strong-123!';
@@ -192,7 +180,7 @@ test(
       const runtimeUrl = new URL(postgres.url);
       runtimeUrl.username = 'runtime_fixture';
       runtime = await openDatabase({ ...service.config, databaseUrl: runtimeUrl.toString() });
-      const runtimeAuth = await createAuth(runtime, service.config, async () => {});
+      const runtimeAuth = await createAuth(runtime, service.config);
       const createdByRuntime = await runtimeAuth.api.signUpEmail({
         body: {
           name: 'Siswa Runtime',

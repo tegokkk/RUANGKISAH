@@ -18,9 +18,6 @@ export function loadConfig(overrides = {}) {
     dataDir: resolve(process.env.DATA_DIR || '.data'),
     publicUrl: process.env.PUBLIC_URL || previewUrl || 'http://localhost:5173',
     secret: process.env.AUTH_SECRET,
-    mailMode: process.env.MAIL_MODE || (production || vercel ? 'smtp' : 'file'),
-    smtpUrl: process.env.SMTP_URL,
-    mailFrom: process.env.MAIL_FROM,
     databaseProvider:
       process.env.DATABASE_PROVIDER || (process.env.DATABASE_URL ? 'postgres' : 'sqlite'),
     databaseUrl: process.env.DATABASE_URL,
@@ -85,22 +82,6 @@ export function loadConfig(overrides = {}) {
     throw new Error('PUBLIC_URL harus origin tanpa path atau credential.');
   if ((config.production || config.vercel) && publicUrl.protocol !== 'https:')
     throw new Error('PUBLIC_URL HTTPS wajib pada produksi.');
-  if (!['file', 'smtp'].includes(config.mailMode))
-    throw new Error('MAIL_MODE harus file atau smtp.');
-  if ((config.production || config.vercel) && config.mailMode !== 'smtp')
-    throw new Error('Produksi memerlukan pengiriman email SMTP.');
-  if (config.mailMode === 'smtp' && (!config.smtpUrl || !config.mailFrom))
-    throw new Error('SMTP_URL dan MAIL_FROM wajib untuk pengiriman email.');
-  if (config.mailMode === 'smtp') {
-    let smtp;
-    try {
-      smtp = new URL(config.smtpUrl);
-    } catch {
-      throw new Error('SMTP_URL tidak valid.');
-    }
-    if (!['smtp:', 'smtps:'].includes(smtp.protocol))
-      throw new Error('SMTP_URL harus memakai smtp:// atau smtps://.');
-  }
   config.origins =
     config.production || config.vercel
       ? [publicUrl.origin]

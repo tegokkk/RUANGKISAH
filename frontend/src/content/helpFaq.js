@@ -3,7 +3,7 @@ export const HELP_FAQ = [
     id: 'faq-account',
     question: 'Apakah harus membuat akun?',
     answer:
-      'Ya. Buat akun, verifikasi email, tunggu persetujuan Admin, lalu masuk untuk menggunakan refleksi, jurnal, target, catatan dan contoh fiktif. Bantuan serta informasi privasi tetap terbuka untuk semua.',
+      'Ya. Buat akun, tunggu persetujuan Admin, lalu masuk untuk menggunakan refleksi, jurnal, target, catatan dan contoh fiktif. Bantuan serta informasi privasi tetap terbuka untuk semua.',
   },
   {
     id: 'faq-autosave',

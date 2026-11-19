@@ -23,7 +23,6 @@ test(
         autoMigrate: true,
         test: true,
         dataDir: directory,
-        mailMode: 'file',
       });
       const ids = {};
       for (const [name, role] of [

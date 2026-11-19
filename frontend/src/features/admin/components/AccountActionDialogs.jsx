@@ -71,7 +71,7 @@ export function ToggleStatusDialog({ open, account, pending = false, onCancel, o
       <p>
         {isDisabling
           ? 'Pengguna tidak akan dapat masuk selama akun berstatus dinonaktifkan.'
-          : 'Akun diaktifkan kembali. Login tetap memerlukan verifikasi email dan persetujuan Admin.'}
+          : 'Akun diaktifkan kembali. Login tetap memerlukan persetujuan Admin.'}
       </p>
     </Dialog>
   );
@@ -104,10 +104,7 @@ export function ApproveAccountDialog({ open, account, pending = false, onCancel,
       <p>
         Akun sasaran: <strong>{account.displayName}</strong> ({account.email}).
       </p>
-      <p>
-        Email pengguna sudah terverifikasi. Persetujuan ini mengizinkan pengguna masuk dan
-        menggunakan fitur RUANGKISAH.
-      </p>
+      <p>Persetujuan ini mengizinkan pengguna masuk dan menggunakan fitur RUANGKISAH.</p>
       <p>
         Tindakan dicatat dalam riwayat pengelola. Persetujuan tidak memberikan akses ke isi jurnal
         pengguna.

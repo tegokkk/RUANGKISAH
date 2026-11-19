@@ -5,7 +5,6 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
 import { loadConfig } from './config.js';
-import { createMailer } from './mail.js';
 import { createAuth } from './auth.js';
 import { openDatabase } from './database.js';
 import { assertSchemaReady, migrateDatabase } from './schema.js';
@@ -31,11 +30,9 @@ export function publicAccount(user) {
     status:
       user.status === 'disabled'
         ? 'disabled'
-        : !user.emailVerified
-          ? 'pending_verification'
-          : user.approvalStatus !== 'approved'
-            ? 'pending_approval'
-            : 'active',
+        : user.approvalStatus !== 'approved'
+          ? 'pending_approval'
+          : 'active',
     emailVerified: Boolean(user.emailVerified),
     approvalStatus: user.approvalStatus,
     createdAt: new Date(user.createdAt).toISOString(),
@@ -49,7 +46,7 @@ export async function createApplication(overrides = {}) {
   const { db } = database;
   let auth;
   try {
-    auth = await createAuth(database, config, createMailer(config));
+    auth = await createAuth(database, config);
     if (config.autoMigrate) await migrateDatabase(database, auth, config);
     await assertSchemaReady(db);
   } catch (error) {
@@ -121,7 +118,7 @@ export async function createApplication(overrides = {}) {
     }
     next();
   });
-  app.get('/api/config', (_req, res) => res.json({ mailMode: config.mailMode }));
+  app.get('/api/config', (_req, res) => res.json({ emailVerificationRequired: false }));
   app.all('/api/auth/*splat', toNodeHandler(auth));
   app.use(express.json({ limit: '16kb' }));
   async function requireSession(req, res, next) {
@@ -133,12 +130,7 @@ export async function createApplication(overrides = {}) {
         .select(PUBLIC_FIELDS)
         .where('id', '=', session.user.id)
         .executeTakeFirst());
-    if (
-      !user ||
-      user.status !== 'active' ||
-      !user.emailVerified ||
-      user.approvalStatus !== 'approved'
-    )
+    if (!user || user.status !== 'active' || user.approvalStatus !== 'approved')
       return res.status(401).json({ ok: false, message: 'Silakan masuk kembali.' });
     req.account = user;
     next();
@@ -191,7 +183,6 @@ export async function createApplication(overrides = {}) {
         if (
           !actor ||
           actor.status !== 'active' ||
-          !actor.emailVerified ||
           actor.approvalStatus !== 'approved' ||
           !['admin', 'superadmin'].includes(actor.role)
         )
@@ -208,8 +199,6 @@ export async function createApplication(overrides = {}) {
           );
         if (operation === 'approval') {
           if (target.approvalStatus === 'approved') return denied(409, 'Akun ini sudah disetujui.');
-          if (!target.emailVerified)
-            return denied(409, 'Email pengguna harus diverifikasi sebelum akun disetujui.');
           if (target.status !== 'active')
             return denied(409, 'Aktifkan kembali akun sebelum menyetujui pendaftaran.');
         }

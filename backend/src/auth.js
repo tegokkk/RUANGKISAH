@@ -2,7 +2,7 @@ import { betterAuth } from 'better-auth';
 import { APIError } from 'better-auth/api';
 import { consumeRateLimit } from './rate-limit.js';
 
-export async function createAuth(database, config, sendMail) {
+export async function createAuth(database, config) {
   const { db } = database;
   const auth = betterAuth({
     appName: 'RUANGKISAH.ID',
@@ -13,30 +13,11 @@ export async function createAuth(database, config, sendMail) {
     telemetry: { enabled: false },
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      requireEmailVerification: false,
+      autoSignIn: false,
       minPasswordLength: 10,
       maxPasswordLength: 128,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: async ({ user, url }) =>
-        sendMail({
-          to: user.email,
-          subject: 'Atur ulang kata sandi RUANGKISAH',
-          url,
-          kind: 'reset',
-        }),
-    },
-    emailVerification: {
-      sendOnSignUp: true,
-      sendOnSignIn: true,
-      expiresIn: 3600,
-      autoSignInAfterVerification: false,
-      sendVerificationEmail: async ({ user, url }) =>
-        sendMail({
-          to: user.email,
-          subject: 'Verifikasi email RUANGKISAH',
-          url,
-          kind: 'verification',
-        }),
     },
     user: {
       additionalFields: {

@@ -19,7 +19,6 @@ const service = await createApplication({
   dataDir,
   test: true,
   publicUrl: 'http://127.0.0.1:4001',
-  mailMode: 'file',
   port: 4001,
   serveFrontend: true,
   frontendDir: resolve('../frontend/dist'),

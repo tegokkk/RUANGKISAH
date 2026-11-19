@@ -1,7 +1,6 @@
 import { loadConfig } from '../src/config.js';
 import { openDatabase } from '../src/database.js';
 import { createAuth } from '../src/auth.js';
-import { createMailer } from '../src/mail.js';
 import { migrateDatabase } from '../src/schema.js';
 
 const config = loadConfig({
@@ -11,7 +10,7 @@ const config = loadConfig({
 });
 const database = await openDatabase(config);
 try {
-  const auth = await createAuth(database, config, createMailer(config));
+  const auth = await createAuth(database, config);
   await migrateDatabase(database, auth, config);
   console.log('Migrasi schema privat ruangkisah selesai. Credential tidak ditampilkan.');
 } catch {

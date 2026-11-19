@@ -1,6 +1,5 @@
 import { expect, test } from './fixtures.js';
 import AxeBuilder from '@axe-core/playwright';
-import { readTestMail } from './mailHelpers.js';
 
 async function saveJournal(page, text) {
   await page.goto('/jurnal-perasaan');
@@ -76,56 +75,13 @@ test('storage penuh mempertahankan draf dan mengonfirmasi sebelum pindah ke cata
   await expect(page.getByText('DRAF_MASIH_ADA')).toBeVisible();
 });
 
-test('reset kata sandi melalui email lokal server, tanpa token simulasi di UI', async ({
-  page,
-  request,
-}) => {
-  const email = 'reset-browser-' + Date.now() + '@example.test';
-  const headers = { Origin: 'http://127.0.0.1:4001' };
-  const created = await request.post('/api/auth/sign-up/email', {
-    headers,
-    data: {
-      name: 'Siswa Reset',
-      email,
-      password: 'Initial-Password-123!',
-      termsAccepted: true,
-      callbackURL: 'http://127.0.0.1:4001/masuk',
-    },
-  });
-  expect(created.ok()).toBeTruthy();
-  await page.goto((await readTestMail(email, 'verification')).url);
-  const approver = await page.context().browser().newContext();
-  try {
-    await approver.request.post('http://127.0.0.1:4001/api/auth/sign-in/email', {
-      headers: { Origin: 'http://127.0.0.1:4001' },
-      data: { email: 'owner@example.test', password: 'E2E-Only-Password-123!' },
-    });
-    const approved = await approver.request.patch(
-      'http://127.0.0.1:4001/api/admin/accounts/' + (await created.json()).user.id + '/approval',
-      { headers: { Origin: 'http://127.0.0.1:4001' }, data: { approvalStatus: 'approved' } }
-    );
-    expect(approved.ok()).toBe(true);
-  } finally {
-    await approver.close();
-  }
+test('halaman lupa kata sandi memberi panduan bantuan tanpa pengiriman SMTP', async ({ page }) => {
   await page.goto('/lupa-kata-sandi');
-  await page.getByLabel(/Email/i).fill(email);
-  await page.getByRole('button', { name: /Kirim instruksi reset/i }).click();
-  await expect(page.getByText(/Jika email tersebut terdaftar/i)).toBeVisible();
-  await expect(page.getByRole('link', { name: /simulasi/i })).toHaveCount(0);
-  await page.goto((await readTestMail(email, 'reset')).url);
-  await page
-    .getByLabel(/^Kata sandi baru/i)
-    .first()
-    .fill('Replacement-Password-456!');
-  await page.getByLabel(/^Konfirmasi kata sandi baru/i).fill('Replacement-Password-456!');
-  await page.getByRole('button', { name: /Simpan kata sandi baru/i }).click();
-  await expect(page.getByRole('heading', { name: /Kata sandi diperbarui/i })).toBeVisible();
-  await page.goto('/masuk');
-  await page.getByLabel('Email', { exact: false }).fill(email);
-  await page.getByLabel(/^Kata sandi/i).fill('Replacement-Password-456!');
-  await page.getByRole('button', { name: /^Masuk$/ }).click();
-  await expect(page.getByRole('heading', { name: /Akun Saya/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Pemulihan kata sandi/i })).toBeVisible();
+  await expect(
+    page.getByText(/Pengiriman email reset otomatis sedang tidak digunakan/i)
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: /Buka Pusat Bantuan/i })).toBeVisible();
 });
 
 test('batas koleksi: menuju Catatan Saya tidak membuang draf tanpa konfirmasi', async ({
