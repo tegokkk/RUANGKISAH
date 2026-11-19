@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
 import { ACCOUNT_STATUSES, ROLE_LABELS, ROLES } from '@/data/authStore';
+import { PasswordField } from '@/features/auth/components/PasswordField';
 
 export function DeleteAccountDialog({ open, account, pending = false, onCancel, onConfirm }) {
   if (!account) return null;
@@ -153,6 +155,104 @@ export function ChangeRoleDialog({
         Peran baru: <strong>{ROLE_LABELS[targetRole]}</strong>. Perubahan peran ini akan dicatat
         dalam riwayat tindakan pengelola.
       </p>
+    </Dialog>
+  );
+}
+
+export function ResetPasswordDialog({ open, account, pending = false, onCancel, onConfirm }) {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({});
+
+  if (!account) return null;
+
+  const handleClose = () => {
+    setNewPassword('');
+    setConfirmPassword('');
+    setErrors({});
+    onCancel();
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const nextErrors = {};
+    if (newPassword.length < 10 || newPassword.length > 128) {
+      nextErrors.newPassword = 'Kata sandi baru harus 10-128 karakter.';
+    }
+    if (confirmPassword !== newPassword) {
+      nextErrors.confirmPassword = 'Konfirmasi kata sandi tidak sama.';
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
+    const value = newPassword;
+    setNewPassword('');
+    setConfirmPassword('');
+    setErrors({});
+    onConfirm(value);
+  };
+
+  return (
+    <Dialog
+      open={open}
+      title="Atur ulang kata sandi akun?"
+      onClose={handleClose}
+      closeDisabled={pending}
+      actions={
+        <>
+          <Button variant="secondary" onClick={handleClose} disabled={pending}>
+            Batal
+          </Button>
+          <Button
+            type="submit"
+            form="admin-reset-password-form"
+            variant="primary"
+            pending={pending}
+            pendingText="Menyimpan..."
+          >
+            Simpan kata sandi baru
+          </Button>
+        </>
+      }
+    >
+      <p>
+        Akun sasaran: <strong>{account.displayName}</strong> ({account.email}) — peran{' '}
+        <strong>{ROLE_LABELS[account.role]}</strong>.
+      </p>
+      <p>
+        Sesi masuk aktif pada akun ini akan dicabut dan tindakan akan dicatat dalam riwayat
+        pengelola tanpa menyimpan isi kata sandi.
+      </p>
+      <form
+        id="admin-reset-password-form"
+        onSubmit={handleSubmit}
+        noValidate
+        style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', marginTop: '0.5rem' }}
+      >
+        <PasswordField
+          label="Kata sandi baru"
+          required
+          autoComplete="new-password"
+          helper="Gunakan 10-128 karakter."
+          value={newPassword}
+          onChange={(e) => {
+            setNewPassword(e.target.value);
+            setErrors((prev) => ({ ...prev, newPassword: '' }));
+          }}
+          error={errors.newPassword}
+        />
+        <PasswordField
+          label="Konfirmasi kata sandi baru"
+          required
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+          }}
+          error={errors.confirmPassword}
+        />
+      </form>
     </Dialog>
   );
 }

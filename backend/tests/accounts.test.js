@@ -316,3 +316,72 @@ test('persetujuan wajib di server: aktivasi dan perubahan profil/role tidak mele
     1,
   );
 });
+
+test('ubah sandi mandiri dan atur ulang sandi oleh pengelola mencabut sesi lama serta menghormati batas peran', async () => {
+  const target = await register('pw-student@example.test');
+  await call('/api/admin/accounts/' + target.data.user.id + '/approval', {
+    method: 'PATCH',
+    cookie: approvalOwner,
+    body: { approvalStatus: 'approved' },
+  });
+  const firstSession = await login('pw-student@example.test');
+  assert.equal(firstSession.response.status, 200);
+
+  // Self-service change password
+  const wrongCurrent = await call('/api/me/password', {
+    method: 'POST',
+    cookie: firstSession.cookie,
+    body: {
+      currentPassword: 'Wrong-Current-Password-123!',
+      newPassword: 'Self-Updated-Password-123!',
+    },
+  });
+  assert.equal(wrongCurrent.response.status, 400);
+  const selfChanged = await call('/api/me/password', {
+    method: 'POST',
+    cookie: firstSession.cookie,
+    body: {
+      currentPassword: password,
+      newPassword: 'Self-Updated-Password-123!',
+    },
+  });
+  assert.equal(selfChanged.response.status, 200);
+  assert.equal((await call('/api/me', { cookie: firstSession.cookie })).response.status, 200);
+  assert.equal((await login('pw-student@example.test', password)).response.status, 401);
+  const secondSession = await login('pw-student@example.test', 'Self-Updated-Password-123!');
+  assert.equal(secondSession.response.status, 200);
+
+  // Superadmin resets student password -> old session revoked, new password works, audit logged
+  const resetRes = await call('/api/admin/accounts/' + target.data.user.id + '/password', {
+    method: 'PATCH',
+    cookie: approvalOwner,
+    body: { newPassword: 'Admin-Reset-Password-456!' },
+  });
+  assert.equal(resetRes.response.status, 200);
+  assert.equal((await call('/api/me', { cookie: secondSession.cookie })).response.status, 401);
+  assert.equal(
+    (await login('pw-student@example.test', 'Self-Updated-Password-123!')).response.status,
+    401,
+  );
+  assert.equal(
+    (await login('pw-student@example.test', 'Admin-Reset-Password-456!')).response.status,
+    200,
+  );
+
+  // Too short password rejected
+  const invalidRes = await call('/api/admin/accounts/' + target.data.user.id + '/password', {
+    method: 'PATCH',
+    cookie: approvalOwner,
+    body: { newPassword: 'short' },
+  });
+  assert.equal(invalidRes.response.status, 400);
+
+  // Audit log records password reset without exposing password
+  const logs = await call('/api/admin/audit', { cookie: approvalOwner });
+  const resetLogs = logs.data.logs.filter(
+    (log) =>
+      log.targetEmail === 'pw-student@example.test' && log.action === 'Atur ulang kata sandi akun',
+  );
+  assert.equal(resetLogs.length, 1);
+  assert.ok(!JSON.stringify(resetLogs).includes('Admin-Reset-Password-456!'));
+});

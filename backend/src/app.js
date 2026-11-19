@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { toNodeHandler, fromNodeHeaders } from 'better-auth/node';
+import { hashPassword, verifyPassword } from 'better-auth/crypto';
 import { loadConfig } from './config.js';
 import { createAuth } from './auth.js';
 import { openDatabase } from './database.js';
@@ -133,11 +134,56 @@ export async function createApplication(overrides = {}) {
     if (!user || user.status !== 'active' || user.approvalStatus !== 'approved')
       return res.status(401).json({ ok: false, message: 'Silakan masuk kembali.' });
     req.account = user;
+    req.sessionId = session.session?.id || null;
     next();
   }
   app.get('/api/me', requireSession, (req, res) =>
     res.json({ ok: true, user: publicAccount(req.account) }),
   );
+  app.post('/api/me/password', requireSession, async (req, res) => {
+    const { currentPassword, newPassword } = req.body || {};
+    if (typeof currentPassword !== 'string' || !currentPassword)
+      return res.status(400).json({ ok: false, message: 'Kata sandi saat ini wajib diisi.' });
+    if (typeof newPassword !== 'string' || newPassword.length < 10 || newPassword.length > 128)
+      return res.status(400).json({ ok: false, message: 'Kata sandi baru harus 10-128 karakter.' });
+    if (newPassword === currentPassword)
+      return res.status(400).json({
+        ok: false,
+        message: 'Kata sandi baru harus berbeda dari kata sandi saat ini.',
+      });
+    const cred = await db
+      .selectFrom('account')
+      .select(['id', 'password'])
+      .where('userId', '=', req.account.id)
+      .where('providerId', '=', 'credential')
+      .executeTakeFirst();
+    if (
+      !cred?.password ||
+      !(await verifyPassword({ hash: cred.password, password: currentPassword }))
+    )
+      return res.status(400).json({
+        ok: false,
+        code: 'INVALID_PASSWORD',
+        message: 'Kata sandi saat ini tidak sesuai.',
+      });
+    const nextHash = await hashPassword(newPassword);
+    await db.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('account')
+        .set({ password: nextHash, updatedAt: database.date() })
+        .where('id', '=', cred.id)
+        .execute();
+      await transaction
+        .updateTable('user')
+        .set({ updatedAt: database.date() })
+        .where('id', '=', req.account.id)
+        .execute();
+      let revoke = transaction.deleteFrom('session').where('userId', '=', req.account.id);
+      if (req.sessionId) revoke = revoke.where('id', '!=', req.sessionId);
+      await revoke.execute();
+    });
+    return res.json({ ok: true });
+  });
   app.use('/api/admin', requireSession, (req, res, next) => {
     if (!['admin', 'superadmin'].includes(req.account.role))
       return res.status(403).json({ ok: false, message: 'Akses tidak diizinkan.' });
@@ -161,12 +207,20 @@ export async function createApplication(overrides = {}) {
   });
   async function manageAccount(req, res, operation) {
     const value = operation === 'role' ? req.body?.role : req.body?.status;
-    if (
+    if (operation === 'password') {
+      const nextPassword = req.body?.newPassword;
+      if (typeof nextPassword !== 'string' || nextPassword.length < 10 || nextPassword.length > 128)
+        return res
+          .status(400)
+          .json({ ok: false, message: 'Kata sandi baru harus 10-128 karakter.' });
+    } else if (
       (operation === 'role' && !['siswa', 'admin'].includes(value)) ||
       (operation === 'status' && !['active', 'disabled'].includes(value)) ||
       (operation === 'approval' && req.body?.approvalStatus !== 'approved')
     )
       return res.status(400).json({ ok: false, message: 'Nilai perubahan akun tidak valid.' });
+    const hashedPassword =
+      operation === 'password' ? await hashPassword(req.body.newPassword) : null;
     const denied = (status, message) => ({ status, body: { ok: false, message } });
     try {
       const result = await db.transaction().execute(async (transaction) => {
@@ -209,6 +263,18 @@ export async function createApplication(overrides = {}) {
           await transaction.deleteFrom('account').where('userId', '=', target.id).execute();
           await transaction.deleteFrom('verification').where('value', '=', target.id).execute();
           await transaction.deleteFrom('user').where('id', '=', target.id).execute();
+        } else if (operation === 'password') {
+          await transaction
+            .updateTable('account')
+            .set({ password: hashedPassword, updatedAt: database.date() })
+            .where('userId', '=', target.id)
+            .where('providerId', '=', 'credential')
+            .execute();
+          await transaction
+            .updateTable('user')
+            .set({ updatedAt: database.date() })
+            .where('id', '=', target.id)
+            .execute();
         } else {
           await transaction
             .updateTable('user')
@@ -237,7 +303,9 @@ export async function createApplication(overrides = {}) {
                   ? 'Ubah peran Admin'
                   : operation === 'approval'
                     ? 'Setujui pendaftaran akun'
-                    : 'Ubah status akun',
+                    : operation === 'password'
+                      ? 'Atur ulang kata sandi akun'
+                      : 'Ubah status akun',
             targetId: target.id,
             targetEmail: target.email,
             result: 'Berhasil',
@@ -268,6 +336,7 @@ export async function createApplication(overrides = {}) {
   app.patch('/api/admin/accounts/:id/status', (req, res) => manageAccount(req, res, 'status'));
   app.patch('/api/admin/accounts/:id/approval', (req, res) => manageAccount(req, res, 'approval'));
   app.patch('/api/admin/accounts/:id/role', (req, res) => manageAccount(req, res, 'role'));
+  app.patch('/api/admin/accounts/:id/password', (req, res) => manageAccount(req, res, 'password'));
   app.use('/api', (_req, res) =>
     res.status(404).json({ ok: false, message: 'Endpoint tidak ditemukan.' }),
   );

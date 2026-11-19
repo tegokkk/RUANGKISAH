@@ -15,6 +15,7 @@ import {
   ApproveAccountDialog,
   ChangeRoleDialog,
   DeleteAccountDialog,
+  ResetPasswordDialog,
   ToggleStatusDialog,
 } from '@/features/admin/components/AccountActionDialogs';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -50,6 +51,7 @@ export function AdminPanelPage({ mode = 'admin' }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [statusTarget, setStatusTarget] = useState(null);
   const [roleTarget, setRoleTarget] = useState(null); // { account, nextRole }
+  const [passwordTarget, setPasswordTarget] = useState(null);
   const [actionFeedback, setActionFeedback] = useState(null);
   const [pending, setPending] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -213,6 +215,24 @@ export function AdminPanelPage({ mode = 'admin' }) {
       setActionFeedback({
         variant: 'success',
         message: `Peran ${res.account.displayName} diperbarui menjadi ${ROLE_LABELS[res.account.role]}.`,
+      });
+      loadData();
+    } else {
+      setActionFeedback({ variant: 'danger', message: res.message });
+      loadData();
+    }
+  };
+
+  const handleConfirmResetPassword = async (newPassword) => {
+    if (!passwordTarget || !user) return;
+    setPending(true);
+    const res = await authStore.resetAccountPassword(user, passwordTarget.id, newPassword);
+    setPending(false);
+    setPasswordTarget(null);
+    if (res.ok) {
+      setActionFeedback({
+        variant: 'success',
+        message: `Kata sandi ${res.account.displayName} berhasil diperbarui. Sesi aktif sebelumnya telah dicabut.`,
       });
       loadData();
     } else {
@@ -530,6 +550,13 @@ export function AdminPanelPage({ mode = 'admin' }) {
                               Detail
                             </button>
                             {renderStatusAction(acc)}
+                            <button
+                              type="button"
+                              className={styles.smallBtn}
+                              onClick={() => setPasswordTarget(acc)}
+                            >
+                              Atur Sandi
+                            </button>
                             {isSuperadminMode && (
                               <button
                                 type="button"
@@ -578,6 +605,13 @@ export function AdminPanelPage({ mode = 'admin' }) {
                         Detail
                       </button>
                       {renderStatusAction(acc)}
+                      <button
+                        type="button"
+                        className={styles.smallBtn}
+                        onClick={() => setPasswordTarget(acc)}
+                      >
+                        Atur Sandi
+                      </button>
                       <button
                         type="button"
                         className={`${styles.smallBtn} ${styles.smallBtnDanger}`}
@@ -659,13 +693,24 @@ export function AdminPanelPage({ mode = 'admin' }) {
                             Detail
                           </button>
                           {acc.role === ROLES.ADMIN && (
-                            <button
-                              type="button"
-                              className={styles.smallBtn}
-                              onClick={() => setRoleTarget({ account: acc, nextRole: ROLES.SISWA })}
-                            >
-                              Cabut Admin
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                className={styles.smallBtn}
+                                onClick={() => setPasswordTarget(acc)}
+                              >
+                                Atur Sandi
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.smallBtn}
+                                onClick={() =>
+                                  setRoleTarget({ account: acc, nextRole: ROLES.SISWA })
+                                }
+                              >
+                                Cabut Admin
+                              </button>
+                            </>
                           )}
                           {renderStatusAction(acc)}
                           <button
@@ -699,13 +744,22 @@ export function AdminPanelPage({ mode = 'admin' }) {
                       Detail
                     </button>
                     {acc.role === ROLES.ADMIN && (
-                      <button
-                        type="button"
-                        className={styles.smallBtn}
-                        onClick={() => setRoleTarget({ account: acc, nextRole: ROLES.SISWA })}
-                      >
-                        Cabut Admin
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          className={styles.smallBtn}
+                          onClick={() => setPasswordTarget(acc)}
+                        >
+                          Atur Sandi
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.smallBtn}
+                          onClick={() => setRoleTarget({ account: acc, nextRole: ROLES.SISWA })}
+                        >
+                          Cabut Admin
+                        </button>
+                      </>
                     )}
                     <button
                       type="button"
@@ -858,6 +912,14 @@ export function AdminPanelPage({ mode = 'admin' }) {
         targetRole={roleTarget?.nextRole}
         onCancel={() => setRoleTarget(null)}
         onConfirm={handleConfirmRoleChange}
+      />
+
+      <ResetPasswordDialog
+        pending={pending}
+        open={Boolean(passwordTarget)}
+        account={passwordTarget}
+        onCancel={() => setPasswordTarget(null)}
+        onConfirm={handleConfirmResetPassword}
       />
     </div>
   );

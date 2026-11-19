@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
 import { Notice } from '@/components/ui/Notice';
-import { ACCOUNT_STATUS_LABELS, ROLE_LABELS, ROLES } from '@/data/authStore';
+import { ACCOUNT_STATUS_LABELS, authStore, ROLE_LABELS, ROLES } from '@/data/authStore';
 import { useAuth } from '@/features/auth/AuthContext';
+import { PasswordField } from '@/features/auth/components/PasswordField';
 import { formatIndonesianDate } from '@/utils/date';
 import styles from './AuthPages.module.css';
 
@@ -15,6 +16,13 @@ export function AccountPage() {
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [error, setError] = useState('');
   const [savedNotice, setSavedNotice] = useState('');
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordFeedback, setPasswordFeedback] = useState(null);
+  const [passwordPending, setPasswordPending] = useState(false);
 
   if (!user) return null;
 
@@ -31,6 +39,43 @@ export function AccountPage() {
     } else {
       setError(res.message);
     }
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    const errs = {};
+    if (!currentPassword) {
+      errs.currentPassword = 'Kata sandi saat ini wajib diisi.';
+    }
+    if (newPassword.length < 10 || newPassword.length > 128) {
+      errs.newPassword = 'Kata sandi baru harus 10-128 karakter.';
+    } else if (newPassword === currentPassword) {
+      errs.newPassword = 'Kata sandi baru harus berbeda dari kata sandi saat ini.';
+    }
+    if (confirmPassword !== newPassword) {
+      errs.confirmPassword = 'Konfirmasi kata sandi baru tidak sama.';
+    }
+
+    setPasswordErrors(errs);
+    setPasswordFeedback(null);
+    if (Object.keys(errs).length > 0) return;
+
+    setPasswordPending(true);
+    const res = await authStore.changeOwnPassword({ currentPassword, newPassword });
+    setPasswordPending(false);
+
+    if (!res.ok) {
+      setPasswordFeedback({ variant: 'danger', message: res.message });
+      return;
+    }
+
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordFeedback({
+      variant: 'success',
+      message: 'Kata sandi berhasil diperbarui. Sesi pada perangkat lain telah dikeluarkan.',
+    });
   };
 
   const handleLogout = async () => {
@@ -103,6 +148,70 @@ export function AccountPage() {
             Keluar
           </Button>
         </div>
+      </section>
+
+      <section className={styles.card} aria-labelledby="change-password-title">
+        <h2 id="change-password-title" className={styles.title}>
+          Ubah Kata Sandi
+        </h2>
+        <p className={styles.lead}>
+          Perbarui kata sandimu secara berkala untuk menjaga keamanan akun.
+        </p>
+
+        {passwordFeedback && (
+          <Notice variant={passwordFeedback.variant}>{passwordFeedback.message}</Notice>
+        )}
+
+        <form className={styles.form} onSubmit={handleChangePassword} noValidate>
+          <PasswordField
+            label="Kata sandi saat ini"
+            required
+            autoComplete="current-password"
+            value={currentPassword}
+            onChange={(e) => {
+              setCurrentPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, currentPassword: '' }));
+              setPasswordFeedback(null);
+            }}
+            error={passwordErrors.currentPassword}
+          />
+
+          <PasswordField
+            label="Kata sandi baru"
+            required
+            autoComplete="new-password"
+            helper="Gunakan 10-128 karakter."
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, newPassword: '' }));
+              setPasswordFeedback(null);
+            }}
+            error={passwordErrors.newPassword}
+          />
+
+          <PasswordField
+            label="Konfirmasi kata sandi baru"
+            required
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              setPasswordErrors((prev) => ({ ...prev, confirmPassword: '' }));
+              setPasswordFeedback(null);
+            }}
+            error={passwordErrors.confirmPassword}
+          />
+
+          <Button
+            type="submit"
+            variant="primary"
+            pending={passwordPending}
+            pendingText="Menyimpan kata sandi..."
+          >
+            Simpan kata sandi baru
+          </Button>
+        </form>
       </section>
     </div>
   );

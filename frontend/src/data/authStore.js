@@ -15,6 +15,7 @@ const ERROR_MESSAGES = {
     'Akunmu menunggu persetujuan Admin. Kamu dapat masuk setelah akun disetujui.',
   ACCOUNT_DISABLED: 'Akun ini dinonaktifkan.',
   INVALID_EMAIL_OR_PASSWORD: 'Email atau kata sandi tidak sesuai.',
+  INVALID_PASSWORD: 'Kata sandi saat ini tidak sesuai.',
   USER_ALREADY_EXISTS: 'Pendaftaran belum dapat diselesaikan. Coba masuk dengan akun yang ada.',
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL:
     'Pendaftaran belum dapat diselesaikan. Coba masuk dengan akun yang ada.',
@@ -119,6 +120,12 @@ export const authStore = {
     });
     return result.ok ? { ok: true, user: await this.getSessionUser() } : result;
   },
+  changeOwnPassword({ currentPassword, newPassword }) {
+    return apiRequest('/api/me/password', {
+      method: 'POST',
+      body: { currentPassword, newPassword },
+    });
+  },
   listAccounts() {
     return apiRequest('/api/admin/accounts');
   },
@@ -144,6 +151,12 @@ export const authStore = {
     return apiRequest('/api/admin/accounts/' + encodeURIComponent(id) + '/role', {
       method: 'PATCH',
       body: { role },
+    });
+  },
+  resetAccountPassword(_actor, id, newPassword) {
+    return apiRequest('/api/admin/accounts/' + encodeURIComponent(id) + '/password', {
+      method: 'PATCH',
+      body: { newPassword },
     });
   },
 };
