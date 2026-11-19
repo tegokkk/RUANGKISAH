@@ -103,7 +103,7 @@ Ganti URL_REPOSITORY_ANDA. Jangan commit .env, database SQLite, outbox email ata
 2. **Root Directory: root repository**, jangan frontend atau backend.
 3. Framework: **Other**. Pilih Node.js **24.x**.
 4. vercel.json sudah mengatur install/build/output dan routing:
-   - Install: npm --prefix backend ci && npm --prefix frontend ci
+   - Install: npm --prefix backend ci --omit=dev && npm --prefix frontend ci --include=dev
    - Build: npm run build
    - Output: frontend/dist
    - API: api/index.js, satu origin dengan website.
