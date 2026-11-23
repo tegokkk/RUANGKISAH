@@ -42,7 +42,6 @@ export function HomePage() {
     };
   }, []);
   const [gardenPreset, setGardenPreset] = useState('ruangkisah');
-  const [gardenPaused, setGardenPaused] = useState(false);
 
   return (
     <div className={styles.page}>
@@ -52,11 +51,10 @@ export function HomePage() {
             <Suspense fallback={null}>
               <EmberPetalPreloader
                 background
-                interactionRef={heroRef}
                 preset={gardenPreset}
-                paused={gardenPaused}
+                paused
                 density={0.75}
-                sway={0.6}
+                sway={0}
                 height="100%"
                 className={styles.gardenCanvas}
               />
@@ -99,15 +97,6 @@ export function HomePage() {
         </div>
 
         <div className={styles.heroTools}>
-          <button
-            type="button"
-            className={styles.motionToggle}
-            aria-pressed={gardenPaused}
-            onClick={() => setGardenPaused((value) => !value)}
-          >
-            <span aria-hidden="true">{gardenPaused ? '▷' : 'Ⅱ'}</span>
-            {gardenPaused ? 'Lanjutkan animasi' : 'Jeda animasi'}
-          </button>
           <div className={styles.gardenControls} role="group" aria-label="Suasana warna taman">
             {[
               { id: 'ruangkisah', label: 'Pagi RuangKisah' },
