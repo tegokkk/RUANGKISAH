@@ -33,14 +33,27 @@
   align-items: center;
   gap: 0.5rem;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .wordmark {
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-ink);
+  letter-spacing: -0.02em;
+  color: #153628;
   min-width: 0;
-  word-break: break-word;
+}
+
+.wordmarkAccent {
+  color: #286b40;
+}
+
+.programTag {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding-left: 0.25rem;
 }
 
 @media (max-width: 479px) {

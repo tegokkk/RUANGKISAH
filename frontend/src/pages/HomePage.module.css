@@ -6,57 +6,24 @@
 
 .hero {
   position: relative;
-  isolation: isolate;
   overflow: hidden;
-  min-height: 680px;
-  background-color: var(--color-ink);
+  background-color: #153628;
+  background-image: radial-gradient(
+    75% 110% at 92% 10%,
+    rgba(63, 142, 91, 0.28) 0%,
+    rgba(21, 54, 40, 0) 65%
+  );
   color: var(--color-surface);
   border-radius: var(--radius-hero);
-  padding: 3.5rem 3rem 1.5rem;
+  padding: 4rem 3.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 4rem;
-}
-
-.heroBackdrop {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.heroBackdrop::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(
-    90deg,
-    rgba(17, 31, 25, 0.96) 0%,
-    rgba(17, 31, 25, 0.87) 35%,
-    rgba(17, 31, 25, 0.38) 68%,
-    rgba(17, 31, 25, 0.12) 100%
-  );
-}
-
-.gardenCanvas {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.heroTools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  justify-content: center;
 }
 
 .heroContent {
   min-width: 0;
-  max-width: 610px;
+  max-width: 640px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -117,49 +84,6 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--color-border-subtle);
-}
-
-.gardenControls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.presetPill,
-.motionToggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.5rem 0.875rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background-color: rgba(17, 31, 25, 0.88);
-  color: var(--color-surface);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.presetPill:hover,
-.motionToggle:hover {
-  background-color: var(--color-ink);
-  border-color: var(--color-pistachio);
-  transform: translateY(-1px);
-}
-
-.presetPillActive,
-.presetPillActive:hover {
-  background-color: var(--color-pistachio);
-  border-color: var(--color-pistachio);
-  color: var(--color-ink);
-  font-weight: 700;
 }
 
 .section {
@@ -368,7 +292,7 @@
 
 @media (max-width: 1023px) {
   .hero {
-    padding: 2.5rem 2rem 1.5rem;
+    padding: 3rem 2.25rem;
   }
 
   .heroTitle {
@@ -390,38 +314,12 @@
   }
 
   .hero {
-    min-height: 760px;
-    padding: 1.75rem 1.5rem 1.25rem;
+    padding: 2.25rem 1.5rem;
     border-radius: var(--radius-hero-mobile);
-    gap: 7rem;
-  }
-
-  .heroBackdrop::after {
-    background: linear-gradient(
-      180deg,
-      rgba(17, 31, 25, 0.95) 0%,
-      rgba(17, 31, 25, 0.87) 45%,
-      rgba(17, 31, 25, 0.25) 78%,
-      rgba(17, 31, 25, 0.72) 100%
-    );
   }
 
   .heroContent {
     gap: 1rem;
-  }
-
-  .heroTools {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .gardenControls {
-    gap: 0.375rem;
-  }
-
-  .presetPill {
-    padding-inline: 0.625rem;
-    font-size: 0.6875rem;
   }
 
   .heroTitle {

@@ -14,8 +14,11 @@ export function Footer() {
         <div className={styles.top}>
           <div className={styles.brandCol}>
             <div className={styles.brandRow}>
-              <BrandLogoIcon size={26} />
-              <span className={styles.wordmark}>RUANGKISAH.ID · Selfcare-BK</span>
+              <BrandLogoIcon size={30} />
+              <span className={styles.wordmark}>
+                ruang kisah<span className={styles.wordmarkAccent}>.id</span>
+              </span>
+              <span className={styles.programTag}>Selfcare-BK</span>
             </div>
             <p className={styles.purpose}>
               Media pendamping BK bagi siswa/siswi lintas sekolah untuk mengenali diri, memahami

@@ -39,9 +39,11 @@ export function Header({ onOpenMenu, menuButtonRef, menuOpen }) {
 
       <div className={styles.bar}>
         <Link to="/" className={styles.brand}>
-          <BrandLogoIcon size={28} className={styles.brandLogo} />
+          <BrandLogoIcon size={32} className={styles.brandLogo} />
           <span className={styles.brandText}>
-            <span className={styles.wordmark}>ruangkisah.</span>
+            <span className={styles.wordmark}>
+              ruang kisah<span className={styles.wordmarkAccent}>.id</span>
+            </span>
             <span className={styles.program}>Selfcare-BK</span>
           </span>
         </Link>

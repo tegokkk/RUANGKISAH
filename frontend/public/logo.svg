@@ -1,14 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="18" fill="#182420" />
-  <path
-    d="M20 44C20 31.8497 29.8497 22 42 22H44V28C44 36.8366 36.8366 44 28 44H20Z"
-    fill="#B9C255"
-  />
-  <path
-    d="M20 44C20 37.3726 25.3726 32 32 32H36"
-    stroke="#182420"
-    stroke-width="3"
-    stroke-linecap="round"
-  />
-  <circle cx="25" cy="23" r="4" fill="#E6F1FA" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 68" fill="none">
+  <g transform="translate(2 2)">
+    <path d="M10 62V24a22 22 0 0 1 44 0v38H10Z" fill="#153628" />
+    <path d="M14.5 62V24a17.5 17.5 0 0 1 35 0v38" stroke="#3F8E5B" stroke-width="1.5" />
+    <path d="M32 34.5c-4.5-2.6-10.2-3.2-15.5-1.9v15.6c5.3-1.3 11-.7 15.5 2V34.5Z" fill="#F6F8F4" />
+    <path d="M32 34.5c4.5-2.6 10.2-3.2 15.5-1.9v15.6c-5.3-1.3-11-.7-15.5 2V34.5Z" fill="#CFE3CE" />
+    <path d="M32 35V19.5" stroke="#8CC67D" stroke-width="2.1" stroke-linecap="round" />
+    <path d="M32 26.5c-5.2 0-8.6-3.1-8.6-7.8 4.8 0 8.6 2.9 8.6 7.8Z" fill="#73B568" />
+    <path d="M32 22.8c0-5.4 3.8-8.8 9.2-8.8 0 5.1-3.6 8.8-9.2 8.8Z" fill="#98CF87" />
+  </g>
+  <text
+    x="68"
+    y="44"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="-0.4"
+    fill="#153628"
+  >ruang kisah<tspan fill="#348350">.id</tspan></text>
 </svg>

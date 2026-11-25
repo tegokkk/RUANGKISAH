@@ -1,5 +1,4 @@
 import { useAuth } from '@/features/auth/AuthContext';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   ArrowRightIcon,
   BookOpenIcon,
@@ -12,60 +11,16 @@ import { Button } from '@/components/ui/Button';
 import { TextLink } from '@/components/ui/TextLink';
 import styles from './HomePage.module.css';
 
-const EmberPetalPreloader = lazy(() => import('@/components/ui/ember-petal-preloader'));
-
 export function HomePage() {
   const { isAuthenticated } = useAuth();
-  const heroRef = useRef(null);
-  const [gardenReady, setGardenReady] = useState(false);
-  useEffect(() => {
-    let cancelled = false,
-      frame,
-      idle;
-    // Paint text in its final font before initializing the decorative canvas.
-    const ready = document.fonts?.ready || Promise.resolve();
-    ready.then(() => {
-      if (cancelled) return;
-      frame = requestAnimationFrame(() => {
-        frame = requestAnimationFrame(() => {
-          if (cancelled) return;
-          if (window.requestIdleCallback)
-            idle = window.requestIdleCallback(() => setGardenReady(true), { timeout: 1200 });
-          else setGardenReady(true);
-        });
-      });
-    });
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(frame);
-      if (idle) window.cancelIdleCallback?.(idle);
-    };
-  }, []);
-  const [gardenPreset, setGardenPreset] = useState('ruangkisah');
 
   return (
     <div className={styles.page}>
-      <section ref={heroRef} className={styles.hero} aria-labelledby="hero-heading">
-        <div className={styles.heroBackdrop} aria-hidden="true">
-          {gardenReady && (
-            <Suspense fallback={null}>
-              <EmberPetalPreloader
-                background
-                preset={gardenPreset}
-                paused
-                density={0.75}
-                sway={0}
-                height="100%"
-                className={styles.gardenCanvas}
-              />
-            </Suspense>
-          )}
-        </div>
-
+      <section className={styles.hero} aria-labelledby="hero-heading">
         <div className={styles.heroContent}>
           <div className={styles.heroBadge}>
             <span className={styles.heroDot} aria-hidden="true" />
-            <span>SELFCARE-BK · TAMAN REFLEKSI</span>
+            <span>SELFCARE-BK · RUANG REFLEKSI</span>
           </div>
 
           <h1 id="hero-heading" className={styles.heroTitle}>
@@ -76,7 +31,7 @@ export function HomePage() {
 
           <p className={styles.heroSub}>
             Ruang untuk memahami perasaan, mengenali kekuatan, dan mencoba langkah kecil sesuai
-            kesiapanmu—seperti taman hangat yang tumbuh perlahan sesuai waktumu.
+            kesiapanmu.
           </p>
 
           <div className={styles.heroActions}>
@@ -94,29 +49,6 @@ export function HomePage() {
               ? 'Kamu sudah masuk. Catatan hanya disimpan jika kamu memilihnya.'
               : 'Masuk untuk mulai. Kamu yang memilih apakah ingin menyimpan catatan.'}
           </p>
-        </div>
-
-        <div className={styles.heroTools}>
-          <div className={styles.gardenControls} role="group" aria-label="Suasana warna taman">
-            {[
-              { id: 'ruangkisah', label: 'Pagi RuangKisah' },
-              { id: 'ember', label: 'Senja Hangat' },
-              { id: 'meadow', label: 'Padang Teduh' },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={gardenPreset === item.id}
-                className={[
-                  styles.presetPill,
-                  gardenPreset === item.id ? styles.presetPillActive : '',
-                ].join(' ')}
-                onClick={() => setGardenPreset(item.id)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 

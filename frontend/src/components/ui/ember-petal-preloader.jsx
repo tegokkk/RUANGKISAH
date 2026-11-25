@@ -863,13 +863,15 @@ export default function EmberPetalPreloader({
   const moteCount = Math.round(26 * (W / 1000)) + 10;
   const SPARKS = 28;
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const measure = () => {
       const r = root.getBoundingClientRect();
       if (r.width > 0 && r.height > 0) {
-        setSize({ w: Math.round(r.width), h: Math.round(r.height) });
+        const nextW = Math.round(r.width);
+        const nextH = Math.round(r.height);
+        setSize((prev) => (prev.w === nextW && prev.h === nextH ? prev : { w: nextW, h: nextH }));
       }
     };
     measure();

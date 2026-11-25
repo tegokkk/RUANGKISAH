@@ -283,28 +283,23 @@ export function ChevronDownIcon({ size = 20, className = '' }) {
   );
 }
 
-export function BrandLogoIcon({ size = 28, className = '' }) {
+export function BrandLogoIcon({ size = 32, className = '' }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 64 64"
       fill="none"
       aria-hidden="true"
       className={className}
     >
-      <rect width="32" height="32" rx="9" fill="#182420" />
-      <path
-        d="M10 22C10 15.9249 14.9249 11 21 11H22V14C22 18.4183 18.4183 22 14 22H10Z"
-        fill="#B9C255"
-      />
-      <path
-        d="M10 22C10 18.6863 12.6863 16 16 16H18"
-        stroke="#182420"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-      <circle cx="12.5" cy="11.5" r="2" fill="#E6F1FA" />
+      <path d="M10 62V24a22 22 0 0 1 44 0v38H10Z" fill="#153628" />
+      <path d="M14.5 62V24a17.5 17.5 0 0 1 35 0v38" stroke="#3F8E5B" strokeWidth="1.5" />
+      <path d="M32 34.5c-4.5-2.6-10.2-3.2-15.5-1.9v15.6c5.3-1.3 11-.7 15.5 2V34.5Z" fill="#F6F8F4" />
+      <path d="M32 34.5c4.5-2.6 10.2-3.2 15.5-1.9v15.6c-5.3-1.3-11-.7-15.5 2V34.5Z" fill="#CFE3CE" />
+      <path d="M32 35V19.5" stroke="#8CC67D" strokeWidth="2.1" strokeLinecap="round" />
+      <path d="M32 26.5c-5.2 0-8.6-3.1-8.6-7.8 4.8 0 8.6 2.9 8.6 7.8Z" fill="#73B568" />
+      <path d="M32 22.8c0-5.4 3.8-8.8 9.2-8.8 0 5.1-3.6 8.8-9.2 8.8Z" fill="#98CF87" />
     </svg>
   );
 }
