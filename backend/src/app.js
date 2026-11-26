@@ -121,7 +121,7 @@ export async function createApplication(overrides = {}) {
   });
   app.get('/api/config', (_req, res) => res.json({ emailVerificationRequired: false }));
   app.all('/api/auth/*splat', toNodeHandler(auth));
-  app.use(express.json({ limit: '16kb' }));
+  app.use(express.json({ limit: '64kb' }));
   async function requireSession(req, res, next) {
     const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
     const user =
@@ -184,10 +184,183 @@ export async function createApplication(overrides = {}) {
     });
     return res.json({ ok: true });
   });
+  const MATERIAL_CATEGORIES = [
+    'Kenali Diri',
+    'Perasaan & Emosi',
+    'Keberanian & Target',
+    'Belajar & Karir',
+    'Relasi & Pertemanan',
+    'Lainnya',
+  ];
+  function publicMaterial(row) {
+    return {
+      id: row.id,
+      title: row.title,
+      category: row.category,
+      summary: row.summary,
+      content: row.content,
+      referenceUrl: row.referenceUrl || '',
+      status: row.status === 'draft' ? 'draft' : 'published',
+      authorId: row.authorId,
+      authorName: row.authorName,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }
+  function validateMaterialPayload(body) {
+    const title = typeof body?.title === 'string' ? body.title.trim() : '';
+    const rawCategory = typeof body?.category === 'string' ? body.category.trim() : '';
+    const category = MATERIAL_CATEGORIES.includes(rawCategory) ? rawCategory : 'Lainnya';
+    const summary = typeof body?.summary === 'string' ? body.summary.trim() : '';
+    const content = typeof body?.content === 'string' ? body.content.trim() : '';
+    const rawUrl = typeof body?.referenceUrl === 'string' ? body.referenceUrl.trim() : '';
+    const status = body?.status === 'draft' ? 'draft' : 'published';
+    if (title.length < 3 || title.length > 140)
+      return { ok: false, message: 'Judul materi harus 3-140 karakter.' };
+    if (summary.length < 5 || summary.length > 300)
+      return { ok: false, message: 'Ringkasan materi harus 5-300 karakter.' };
+    if (content.length < 10 || content.length > 12000)
+      return { ok: false, message: 'Isi materi harus 10-12.000 karakter.' };
+    let referenceUrl = null;
+    if (rawUrl) {
+      if (rawUrl.length > 500)
+        return { ok: false, message: 'Tautan referensi maksimal 500 karakter.' };
+      try {
+        const parsed = new URL(rawUrl);
+        if (!['http:', 'https:'].includes(parsed.protocol))
+          return { ok: false, message: 'Tautan referensi harus diawali http:// atau https://.' };
+        referenceUrl = parsed.toString();
+      } catch {
+        return { ok: false, message: 'Format tautan referensi tidak valid.' };
+      }
+    }
+    return { ok: true, value: { title, category, summary, content, referenceUrl, status } };
+  }
+  app.get('/api/materials', requireSession, async (_req, res) => {
+    const rows = await db
+      .selectFrom('bk_material')
+      .selectAll()
+      .where('status', '=', 'published')
+      .orderBy('updatedAt', 'desc')
+      .execute();
+    return res.json({ ok: true, materials: rows.map(publicMaterial) });
+  });
   app.use('/api/admin', requireSession, (req, res, next) => {
     if (!['admin', 'superadmin'].includes(req.account.role))
       return res.status(403).json({ ok: false, message: 'Akses tidak diizinkan.' });
     next();
+  });
+  app.get('/api/admin/materials', async (_req, res) => {
+    const rows = await db
+      .selectFrom('bk_material')
+      .selectAll()
+      .orderBy('updatedAt', 'desc')
+      .execute();
+    return res.json({ ok: true, materials: rows.map(publicMaterial) });
+  });
+  app.post('/api/admin/materials', async (req, res) => {
+    const parsed = validateMaterialPayload(req.body);
+    if (!parsed.ok) return res.status(400).json({ ok: false, message: parsed.message });
+    const now = new Date().toISOString();
+    const record = {
+      id: randomUUID(),
+      ...parsed.value,
+      authorId: req.account.id,
+      authorName: req.account.name,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await db.transaction().execute(async (transaction) => {
+      await transaction.insertInto('bk_material').values(record).execute();
+      await transaction
+        .insertInto('audit_log')
+        .values({
+          id: randomUUID(),
+          actorId: req.account.id,
+          actorEmail: req.account.email,
+          actorRole: req.account.role,
+          action: 'Tambah materi BK',
+          targetId: record.id,
+          targetEmail: record.title,
+          result: 'Berhasil',
+          timestamp: now,
+        })
+        .execute();
+    });
+    return res.status(201).json({ ok: true, material: publicMaterial(record) });
+  });
+  app.patch('/api/admin/materials/:id', async (req, res) => {
+    const parsed = validateMaterialPayload(req.body);
+    if (!parsed.ok) return res.status(400).json({ ok: false, message: parsed.message });
+    const existing = await db
+      .selectFrom('bk_material')
+      .selectAll()
+      .where('id', '=', req.params.id)
+      .executeTakeFirst();
+    if (!existing) return res.status(404).json({ ok: false, message: 'Materi tidak ditemukan.' });
+    const now = new Date().toISOString();
+    const updated = {
+      ...existing,
+      ...parsed.value,
+      updatedAt: now,
+    };
+    await db.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('bk_material')
+        .set({
+          title: updated.title,
+          category: updated.category,
+          summary: updated.summary,
+          content: updated.content,
+          referenceUrl: updated.referenceUrl,
+          status: updated.status,
+          updatedAt: now,
+        })
+        .where('id', '=', existing.id)
+        .execute();
+      await transaction
+        .insertInto('audit_log')
+        .values({
+          id: randomUUID(),
+          actorId: req.account.id,
+          actorEmail: req.account.email,
+          actorRole: req.account.role,
+          action: 'Perbarui materi BK',
+          targetId: existing.id,
+          targetEmail: updated.title,
+          result: 'Berhasil',
+          timestamp: now,
+        })
+        .execute();
+    });
+    return res.json({ ok: true, material: publicMaterial(updated) });
+  });
+  app.delete('/api/admin/materials/:id', async (req, res) => {
+    const existing = await db
+      .selectFrom('bk_material')
+      .selectAll()
+      .where('id', '=', req.params.id)
+      .executeTakeFirst();
+    if (!existing) return res.status(404).json({ ok: false, message: 'Materi tidak ditemukan.' });
+    const now = new Date().toISOString();
+    await db.transaction().execute(async (transaction) => {
+      await transaction.deleteFrom('bk_material').where('id', '=', existing.id).execute();
+      await transaction
+        .insertInto('audit_log')
+        .values({
+          id: randomUUID(),
+          actorId: req.account.id,
+          actorEmail: req.account.email,
+          actorRole: req.account.role,
+          action: 'Hapus materi BK',
+          targetId: existing.id,
+          targetEmail: existing.title,
+          result: 'Berhasil',
+          timestamp: now,
+        })
+        .execute();
+    });
+    return res.json({ ok: true });
   });
   app.get('/api/admin/accounts', async (req, res) => {
     let query = db.selectFrom('user').select(PUBLIC_FIELDS).orderBy('createdAt', 'desc');

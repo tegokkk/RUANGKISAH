@@ -51,6 +51,11 @@ const SavedRecordsPage = lazy(() =>
     default: module.SavedRecordsPage,
   }))
 );
+const MaterialsPage = lazy(() =>
+  import('@/features/materials/MaterialsPage').then((module) => ({
+    default: module.MaterialsPage,
+  }))
+);
 const SelfReflectionPage = lazy(() =>
   import('@/features/self-reflection/SelfReflectionPage').then((module) => ({
     default: module.SelfReflectionPage,
@@ -98,6 +103,14 @@ export const appRoutes = [
         element: (
           <ProtectedRoute>
             <SavedRecordsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: '/materi-bk',
+        element: (
+          <ProtectedRoute>
+            <MaterialsPage />
           </ProtectedRoute>
         ),
       },

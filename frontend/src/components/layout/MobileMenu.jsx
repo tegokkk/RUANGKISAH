@@ -15,6 +15,7 @@ const PRIMARY_LINKS = [
 ];
 
 const SECONDARY_LINKS = [
+  { to: '/materi-bk', label: 'Materi BK' },
   { to: '/catatan-saya', label: 'Catatan Saya' },
   { to: '/privasi', label: 'Privasi & Data' },
   { to: '/tentang', label: 'Tentang & Cara Pakai' },

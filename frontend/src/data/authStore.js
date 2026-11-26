@@ -1,5 +1,13 @@
 export const ROLES = { SISWA: 'siswa', ADMIN: 'admin', SUPERADMIN: 'superadmin' };
 export const ROLE_LABELS = { siswa: 'Siswa', admin: 'Admin', superadmin: 'Superadmin' };
+export const MATERIAL_CATEGORIES = [
+  'Kenali Diri',
+  'Perasaan & Emosi',
+  'Keberanian & Target',
+  'Belajar & Karir',
+  'Relasi & Pertemanan',
+  'Lainnya',
+];
 export const ACCOUNT_STATUSES = {
   ACTIVE: 'active',
   DISABLED: 'disabled',
@@ -157,6 +165,29 @@ export const authStore = {
     return apiRequest('/api/admin/accounts/' + encodeURIComponent(id) + '/password', {
       method: 'PATCH',
       body: { newPassword },
+    });
+  },
+  listStudentMaterials() {
+    return apiRequest('/api/materials');
+  },
+  listAdminMaterials() {
+    return apiRequest('/api/admin/materials');
+  },
+  createMaterial(payload) {
+    return apiRequest('/api/admin/materials', {
+      method: 'POST',
+      body: payload,
+    });
+  },
+  updateMaterial(id, payload) {
+    return apiRequest('/api/admin/materials/' + encodeURIComponent(id), {
+      method: 'PATCH',
+      body: payload,
+    });
+  },
+  deleteMaterial(id) {
+    return apiRequest('/api/admin/materials/' + encodeURIComponent(id), {
+      method: 'DELETE',
     });
   },
 };

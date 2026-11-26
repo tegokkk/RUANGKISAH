@@ -18,6 +18,7 @@ import {
   ResetPasswordDialog,
   ToggleStatusDialog,
 } from '@/features/admin/components/AccountActionDialogs';
+import { MaterialsManager } from '@/features/admin/components/MaterialsManager';
 import { useAuth } from '@/features/auth/AuthContext';
 import { formatIndonesianDate } from '@/utils/date';
 import styles from './AdminPanel.module.css';
@@ -38,8 +39,9 @@ export function AdminPanelPage({ mode = 'admin' }) {
   const [approvalTarget, setApprovalTarget] = useState(null);
   const [approvalSearch, setApprovalSearch] = useState('');
   const [approvalPage, setApprovalPage] = useState(1);
-  const [tab, setTab] = useState('overview'); // 'overview' | 'students' | 'admins' | 'audit'
+  const [tab, setTab] = useState('overview'); // 'overview' | 'students' | 'approvals' | 'materials' | 'admins' | 'audit'
   const [accounts, setAccounts] = useState([]);
+  const [materials, setMaterials] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
 
   const [search, setSearch] = useState('');
@@ -58,12 +60,16 @@ export function AdminPanelPage({ mode = 'admin' }) {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const result = await authStore.listAccounts();
+    const [result, matResult] = await Promise.all([
+      authStore.listAccounts(),
+      authStore.listAdminMaterials(),
+    ]);
     if (result.ok) setAccounts(result.accounts);
     else {
       setAccounts([]);
       setActionFeedback({ variant: 'danger', message: result.message });
     }
+    if (matResult.ok) setMaterials(matResult.materials || []);
     if (isSuperadminMode) {
       const audit = await authStore.listAuditLogs();
       if (audit.ok) setAuditLogs(audit.logs);
@@ -280,6 +286,14 @@ export function AdminPanelPage({ mode = 'admin' }) {
             <span>Persetujuan Akun</span>
             <span className={styles.navBadge}>{approvalQueue.length}</span>
           </button>
+          <button
+            type="button"
+            className={`${styles.navButton} ${tab === 'materials' ? styles.navButtonActive : ''}`}
+            onClick={() => setTab('materials')}
+          >
+            <span>Materi BK</span>
+            <span className={styles.navBadge}>{materials.length}</span>
+          </button>
           {isSuperadminMode && (
             <>
               <button
@@ -355,11 +369,22 @@ export function AdminPanelPage({ mode = 'admin' }) {
                 <p className={styles.statValue}>{stats.disabledStudents}</p>
               </div>
               <div className={styles.statCard}>
-                <p className={styles.statLabel}>Pendaftaran terbaru (7h)</p>
-                <p className={styles.statValue}>{stats.recentStudents}</p>
+                <p className={styles.statLabel}>Materi BK tayang</p>
+                <p className={styles.statValue}>
+                  {materials.filter((m) => m.status === 'published').length}
+                </p>
               </div>
             </div>
           </div>
+        )}
+
+        {tab === 'materials' && (
+          <MaterialsManager
+            materials={materials}
+            loading={loading}
+            onReload={loadData}
+            onFeedback={setActionFeedback}
+          />
         )}
 
         {tab === 'approvals' && (

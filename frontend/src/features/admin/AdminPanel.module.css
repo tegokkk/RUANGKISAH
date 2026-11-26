@@ -641,3 +641,78 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.materialAdminList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.materialAdminCard {
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-field);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.materialMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.categoryPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.675rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: var(--color-frost);
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.materialAdminTitle {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.35;
+}
+
+.materialAdminSummary {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.materialForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.materialFormRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.materialFormActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding-top: 0.25rem;
+}
+
+@media (max-width: 639px) {
+  .materialFormRow {
+    grid-template-columns: 1fr;
+  }
+}

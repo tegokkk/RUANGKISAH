@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import { getMigrations } from 'better-auth/db/migration';
 import { DATABASE_SCHEMA } from './database.js';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 // Executed explicitly by db:migrate for PostgreSQL, never on a Vercel request.
 export async function migrateDatabase(database, auth, config) {
@@ -32,6 +32,21 @@ export async function migrateDatabase(database, auth, config) {
     .addColumn('resetAt', 'bigint', (column) => column.notNull())
     .execute();
   await db.schema
+    .createTable('bk_material')
+    .ifNotExists()
+    .addColumn('id', 'text', (column) => column.primaryKey())
+    .addColumn('title', 'text', (column) => column.notNull())
+    .addColumn('category', 'text', (column) => column.notNull())
+    .addColumn('summary', 'text', (column) => column.notNull())
+    .addColumn('content', 'text', (column) => column.notNull())
+    .addColumn('referenceUrl', 'text')
+    .addColumn('status', 'text', (column) => column.notNull())
+    .addColumn('authorId', 'text', (column) => column.notNull())
+    .addColumn('authorName', 'text', (column) => column.notNull())
+    .addColumn('createdAt', 'text', (column) => column.notNull())
+    .addColumn('updatedAt', 'text', (column) => column.notNull())
+    .execute();
+  await db.schema
     .createTable('app_migrations')
     .ifNotExists()
     .addColumn('version', 'integer', (column) => column.primaryKey())
@@ -42,6 +57,8 @@ export async function migrateDatabase(database, auth, config) {
     ['request_limit', 'resetAt'],
     ['session', 'expiresAt'],
     ['verification', 'expiresAt'],
+    ['bk_material', 'updatedAt'],
+    ['bk_material', 'status'],
   ]) {
     await db.schema
       .createIndex(table + '_' + field + '_cleanup')
@@ -66,6 +83,7 @@ export async function migrateDatabase(database, auth, config) {
       'verification',
       'audit_log',
       'request_limit',
+      'bk_material',
       'app_migrations',
     ]) {
       const qualified = sql.id(DATABASE_SCHEMA, table);

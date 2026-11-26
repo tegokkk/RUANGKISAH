@@ -99,6 +99,21 @@ export function HomePage() {
             icon={<FootprintIcon size={20} />}
           />
         </div>
+
+        <div className={styles.materialsBanner}>
+          <div className={styles.materialsBannerText}>
+            <p className={styles.eyebrow}>Materi dari Guru BK</p>
+            <h3 className={styles.materialsBannerTitle}>Baca Materi Bimbingan &amp; Konseling</h3>
+            <p className={styles.materialsBannerDesc}>
+              Temukan bacaan singkat, tips belajar, pengelolaan emosi, dan panduan langkah praktis
+              yang disiapkan langsung oleh Guru BK.
+            </p>
+          </div>
+          <Button to="/materi-bk" variant="ink">
+            <span>Buka Materi BK</span>
+            <ArrowRightIcon size={18} />
+          </Button>
+        </div>
       </section>
 
       <section data-reveal className={styles.stepsPanel} aria-labelledby="howto-heading">

@@ -73,6 +73,11 @@ export function Header({ onOpenMenu, menuButtonRef, menuOpen }) {
             </>
           ) : (
             <>
+              {user.role === ROLES.SISWA && (
+                <Link to="/materi-bk" className={styles.authLink}>
+                  Materi BK
+                </Link>
+              )}
               {user.role === ROLES.ADMIN && (
                 <Link to="/admin" className={styles.authLink}>
                   Panel Admin
